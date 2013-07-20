@@ -1,0 +1,14 @@
+{
+	"initdefault": 3,
+	"sysinit": [
+	],
+	"l3": [
+		{
+			"command": "/sbin/login.js",
+			"files": [
+				"stdout",
+				"stdin"
+			]
+		}
+	]
+}

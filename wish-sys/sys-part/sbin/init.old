@@ -1,0 +1,213 @@
+var InitClass = function() {
+}
+InitClass.prototype = new Process();
+InitClass.prototype.childList;
+InitClass.prototype.state = 0;
+InitClass.prototype.inittab;
+InitClass.prototype.destLevel;
+InitClass.prototype.Wait = function() {
+}
+InitClass.prototype.Wait.state = -1;
+InitClass.prototype.Wait.array;
+
+InitClass.prototype.main = function(args) {
+	var stdout = this.files['stdout'];
+	if (this.pid == 1) {
+		stdout.write("\ninit: we are pid 1");
+		stdout.write("\n      setting runlvel 0 (we are not running yet)");
+		OS.runlevel = 0;
+		stdout.write("\n      trying to daemonize");
+		stdout.write("\n      adding to scheduler job list");
+		Kernel.Scheduler.add(this);
+	} else {
+
+	}
+}
+InitClass.prototype.tick = function() {
+	var stdout = this.files['stdout'];
+	var stdin = this.files['stdin'];
+	switch(this.state) {
+	case 0:		
+		this.state++;
+		stdout.write("\ninit: we are a daemon now ... yay ...");
+		stdout.write("\nloading /etc/inittab.json ...");
+		var file = Kernel.Filesystem.getFile("/etc/inittab.json");
+		this.files[file.path] = file;
+		this.inittab = JSON.parse(file.read());
+		break;
+	case 1:
+		this.state++;
+		for (var i = 0; i < this.inittab.length; i++) {
+			if (this.inittab[i].action == "initdefault") {
+				this.destLevel = this.inittab[i].runlevels;
+				break;
+			}
+		}
+		if (this.destLevel) {
+			this.destLevel = parseInt(this.destLevel);
+			stdout.write("\nfound initdefault");
+			stdout.write("\ndestination runlevel: " + this.destLevel + "\n");
+		} else {
+			stdout.write("\nno initdefault");
+			stdout.write("\nType in destination runlevel:\033[?25h ");
+			this.state = 25;
+		}
+		break;
+	case 2:
+		this.state++;
+		var array = new Array();
+		stdout.write("looking for sysinit entrys...\n");
+		for (var i = 0; i < this.inittab.length; i++) {
+			if (this.inittab[i].action == "sysinit") {
+				array.push(this.inittab[i].process);
+			}
+		}
+		if (array.length > 0)
+			stdout.write("  found: \n");
+		for (var i = 0; i < array.length; i++) {
+			stdout.write("    " + array[i] + "\n");
+		}
+		InitClass.execAll(array);
+		break;
+	case 3:
+		this.state++;
+		var array = new Array();
+		stdout.write("looking for boot entrys...\n");
+		for (var i = 0; i < this.inittab.length; i++) {
+			if (this.inittab[i].action == "boot") {
+				array.push(this.inittab[i].process);
+			}
+		}
+		if (array.length > 0)
+			stdout.write("  found: \n");
+		for (var i = 0; i < array.length; i++) {
+			stdout.write("    " + array[i] + "\n");
+		}
+		InitClass.execAll(array);
+		break;
+	case 4:
+		switch(this.Wait.state) {
+		case -1:
+			this.Wait.state = 0;
+			this.Wait.array = new Array();
+			stdout.write("looking for bootwait entrys...\n");
+			for (var i = 0; i < this.inittab.length; i++) {
+				if (this.inittab[i].action == "bootwait") {
+					this.Wait.array.push(this.inittab[i].process);
+				}
+			}
+			if (this.Wait.array.length > 0)
+				stdout.write("  found: \n");
+			for (var i = 0; i < this.Wait.array.length; i++) {
+				stdout.write("    " + this.Wait.array[i] + "\n");
+			}
+			break;
+		case -2:
+			this.Wait.state = 0;
+			this.state++;
+			break;
+		default:
+			if (this.Wait.state >= this.Wait.array.length) {
+				this.Wait.state = -2;
+				break;
+			}
+			InitClass.execWait(this.Wait.array[this.Wait.state], this.Wait);
+		}
+		break;
+	case 5:
+		break;
+	case 25:
+		var code = stdin.read();
+		if (!code)
+			break;
+		var char = KeyCodes.normalKey(code);
+		if (isNumber(char)) {
+			this.destLevel = parseInt(char);
+			this.state = 2;
+			stdout.write("\n\033[?25ldestination runlevel: " + this.destLevel + "\n");
+		}
+		break;
+		
+	case SYSHALT:
+		break;
+	default:
+		break;	
+	}
+}
+InitClass.prototype.getStartScripts = function() {
+
+}
+InitClass.prototype.getStopScripts = function() {
+
+}
+InitClass.execAll = function(array) {
+	for (var i = 0; i < array.length; i++) {
+		var params = InitClass.splitParameter(array[i]);
+		var path = params[0];
+		params.splice(0, 1);
+		var func;
+		eval("func = function() {InitClass.okay('" + path + "', '" + JSON.stringify(params) + "');}")
+		Kernel.ProcessManager.exec(path, func);
+	}
+}
+InitClass.okay = function(path, params) {
+	params = JSON.parse(params);
+	var name = path.split("/");
+	name = name[name.length - 1];
+	name = name[0].toUpperCase() + name.substring(1);
+	var prog = eval("new " + name + "Class(1)");
+	Kernel.ProcessManager.add(prog);
+	prog.main(params);
+}
+InitClass.wait;
+InitClass.execWait = function(line, wait) {
+	InitClass.wait = wait;
+	var params = InitClass.splitParameter(line);
+	var path = params[0];
+	params.splice(0, 1);
+	var func;
+	eval("func = function() {InitClass.okayWait('" + path + "', '" + JSON.stringify(params) + "');}");
+	Kernel.ProcessManager.exec(path, func);
+}
+InitClass.okayWait = function(path, params) {
+	InitClass.okay(path, params);
+	InitClass.wait.state++;
+}
+InitClass.splitParameter = function(line) {
+	var paramArray = line.split(" ");
+	for (var i = 0; i < paramArray.length; i++) {
+		if (paramArray[i] == "") {
+			paramArray.splice(i, 1);
+			i--;
+		}
+	}
+	return paramArray;
+}
+InitClass.prototype.signalHandler = function(signal) {
+	switch(signal) {
+	case SIGCHLD:
+		var newChildList = Kernel.ProcessManager.getAllChilds(this.pid);
+		var oldChilds = this.childList.diff(newChildList);
+		var newChilds = newChildList.diff(this.childList);
+		var logText = "init: We lost " + oldChilds.length + " kids and got " + newChilds.length + " new orphans... : (";
+		console.log(logText);
+		this.childList = newChildList;
+		break;
+	case SIGHUP:
+		//break;
+	case SIGALRM:
+		//break;
+	case SIGTERM:
+		//break;
+	case SIGXCPU:
+		//break;
+	case SIGUSR1:
+		//break;
+	case SIGUSR2:
+		//break;
+	default: //SIGKILL 
+		console.log("PID " + this.pid + " got Signal " + signal);
+		// Kernel.ProcessManager.remove(this);
+		break;
+	}
+}

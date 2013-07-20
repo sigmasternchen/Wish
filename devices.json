@@ -1,0 +1,15 @@
+{
+	"harddisks": [
+		{
+			"name": "wish-sys",
+			"manufacturers": "wish-admin",
+			"serialNr": 31415926545,
+			"mbr": "mbr",
+			"partitions": [
+				{
+					"name": "sys-part"
+				}
+			]			
+		}
+	]
+}

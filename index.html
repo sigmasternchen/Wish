@@ -1,0 +1,41 @@
+<html>
+	<head>
+		<style>
+			table {
+				border: 1px solid #fff;
+				background-color: #000;
+				border-collapse: collapse;
+			}
+			tr {
+			}
+			td {
+				width: 10px;
+				text-align: center;
+				height: 20px;
+				color: #fff;
+				font-family: "Courier New", Courier, Monospace;
+				border-collapse: collapse;
+			}
+			#input {
+				z-index: -10; 
+				position: absolute; 
+				top: 10px;
+			}
+			#output {
+				z-index: 1000;
+			}
+		</style>
+		<script src="Emulator.js"></script>
+		<script src="KeyCodes.js"></script>
+		<script src="BIOS.js"></script>
+		<script src="main.js"></script>
+	</head>
+	<body onload="main()">
+		<div id="output"></div>
+		<input type="button" onclick="powerOn()" value="Power Button" />
+		<input type="button" onclick="window.clearInterval(Emulator.mainTickId)" value="clear system timer" />
+		<form id="form" name="form" onsubmit="return false;">
+			<input type="text" name="input" id="input" />
+		</form>
+	</body>
+</html>
