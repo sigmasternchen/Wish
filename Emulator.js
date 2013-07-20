@@ -51,7 +51,7 @@ Emulator.kill = function() {
 Emulator.shutdown = function() {
 	Emulator.running = false;
 	Emulator.startable = true;
-	Emulator.output("\033[0m\033[2J\033[0:0H");
+	Emulator.output("\033[0m\033[2J\033[0;0H");
 	Emulator.Output.cursorOff()
 }
 Emulator.addEventHandlers = function() {
@@ -158,7 +158,7 @@ Emulator.ANSISequences.output = function(text) {
 					break;
 				}
 				if (specialText.length < 1) {
-					normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ":") : "") + specialText;
+					normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ";") : "") + specialText;
 					state = 0;
 					break;
 				}
@@ -238,7 +238,7 @@ Emulator.ANSISequences.output = function(text) {
 				specialText2 = "";
 				state = 0;
 				break;
-			case ':':
+			case ';':
 				// TODO Wrong!
 				specialText2 = specialText;
 				specialText = "";
@@ -306,7 +306,7 @@ Emulator.ANSISequences.output = function(text) {
 					Emulator.Output.cursorOn();
 					break;
 				default:
-					normalText = " [" + ((specialText2.length > 0) ? (specialText2 + ":") : "") + specialText;
+					normalText = " [" + ((specialText2.length > 0) ? (specialText2 + ";") : "") + specialText;
 					break;
 				}
 				specialText = "";
@@ -377,7 +377,7 @@ Emulator.ANSISequences.output = function(text) {
 					Emulator.Output.backgroundColor = "#fff";
 					break;
 				default:
-					normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ":") : "") + specialText;
+					normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ";") : "") + specialText;
 					state = 0;
 					break;	
 				}
@@ -386,7 +386,7 @@ Emulator.ANSISequences.output = function(text) {
 				state = 0;
 				break;
 			default:
-				normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ":") : "") + specialText;
+				normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ";") : "") + specialText;
 				state = 0;
 				break;
 			}
@@ -426,7 +426,7 @@ Emulator.ANSISequences.output = function(text) {
 		}
 	}
 	if ((specialText2.length || specialText.length) > 0)
-		normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ":") : "") + specialText;
+		normalText += " [" + ((specialText2.length > 0) ? (specialText2 + ";") : "") + specialText;
 	Emulator.Output.normalOutput(normalText);
 }
 

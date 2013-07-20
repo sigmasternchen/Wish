@@ -26,7 +26,7 @@ Loader.main = function(device) {
 	console.log("Loader: register key interrupt");
 	Emulator.interrupts['key'] = Loader.key;
 	Loader.device = device;
-	var text = "\033[2J\033[0:0H\033[?25l" + Loader.logo + "\033[s";
+	var text = "\033[2J\033[0;0H\033[?25l" + Loader.logo + "\033[s";
 	Emulator.output(text);
 	Loader.state = 0;
 }

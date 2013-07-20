@@ -49,7 +49,7 @@ Kernel.machine = function() {
 	switch(Kernel.state) {
 	case 0:
 		Emulator.Output.shiftKey = OS.staticShift;
-		Emulator.output("\033[2J\033[0:0H" + OS.logo);
+		Emulator.output("\033[2J\033[0;0H" + OS.logo);
 		Kernel.msgOut("reseting kernel timer", true);
 		Kernel.time = 0;
 		Kernel.msgOut("register main timer (100ms)", true); // pre
@@ -356,22 +356,26 @@ Kernel.Filesystem.update = function(path) {
 	Kernel.Filesystem.files[path] = file;
 	return file;
 }
-Kernel.Filesystem.getRealPath = function(name) {
+Kernel.Filesystem.shortenPath = function(name) {
 	var index;
 	while ((index = name.indexOf("/../")) != -1) {
 		name = name.replace("/../", "/");
 		var index2 = 0;
-		var index3 = 0;
+		var index3 = -1;
 		while(index2 < index) {
 			index3 = index2;
-			index2 = name.indexOf("/", index3);
+			index2 = name.indexOf("/", index3 + 1);
 		}
-		if (!index3)
+		if (index3 == -1)
 			return undefined;
-		name = name.substring(index3, index);
+		name = name.substring(0, index3) + name.substring(index);
 	}
 	while ((index = name.indexOf("/./")) != -1)
 		name = name.replace("/./", "/");
+	return name;
+}
+Kernel.Filesystem.getRealPath = function(name) {
+	name = Kernel.Filesystem.shortenPath(name);
 	return Kernel.Filesystem.root + name;
 }
 Kernel.Filesystem.addTTY = function(path, output, input) {
@@ -411,7 +415,7 @@ Kernel.Filesystem.getDirectory = function(path) {
 	response = JSON.parse(response);
 	if (response.error) {
 		console.log("Kernel: error on reading: " + response.error);
-		return response.error;
+		return response;
 	}
 	return response;
 
