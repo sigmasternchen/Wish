@@ -128,7 +128,7 @@ WshClass.prototype.parseLine = function() {
 	var s = "";
 	s += "var func = function () { ";
 	s += "	try {";
-	s += "		var prog = new " + Kernel.ProcessManager.getClassNameFromFileName(command) + "();";
+	s += "		var prog = new " + Kernel.ProcessManager.getClassNameFromFileName(file) + "();";
 	s += "	} catch (exception) {";
 	s += "		console.dir(exception);";
 	s += "	}"; 
