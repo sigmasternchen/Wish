@@ -58,9 +58,11 @@ Emulator.addEventHandlers = function() {
 	console.log("Emulator: adding unfocus-event");
 	this.input.onblur = this.refocus;
 	console.log("Emulator: adding key-press-event");
-	this.input.onkeypress = this.handleKeyPress;
+	//this.input.onkeypress = this.handleKeyPress;
+	window.onkeypress = this.handleKeyPress;
 	console.log("Emulator: adding key-down-event");
-	this.input.onkeydown = this.handleKeyDown;
+	//this.input.onkeydown = this.handleKeyDown;
+	window.onkeydown = this.handleKeyDown;
 	var timerid = window.setInterval(function() {/*for (var i = 0; i < 10; i++)*/ Emulator.tick(0);}, 1);
 	Emulator.mainTickId = timerid;
 	console.log("Emulator: adding default 1ms (or cheated 0.1 ms) tick with tid=" + timerid);
