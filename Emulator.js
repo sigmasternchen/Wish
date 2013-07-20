@@ -320,6 +320,10 @@ Emulator.ANSISequences.output = function(text) {
 				case 0:
 					Emulator.Output.color = "#fff";
 					Emulator.Output.backgroundColor = "#000";
+					Emulator.Output.bold = false;
+					break;
+				case 1:
+					Emulator.Output.bold = true;
 					break;
 				case 30:
 					Emulator.Output.color = "#000";
@@ -435,6 +439,7 @@ Emulator.Output.sxpos;
 Emulator.Output.sypos;
 Emulator.Output.color;
 Emulator.Output.backgroundColor;
+Emulator.Output.bold;
 Emulator.Output.displayCursor;
 Emulator.Output.shiftKey = 1;
 Emulator.Output.init = function(xsize, ysize) {
@@ -445,9 +450,10 @@ Emulator.Output.init = function(xsize, ysize) {
 	this.xpos = 0;
 	this.ypos = 0;	
 	this.displayCursor = true;
-	console.log("Emulator: seting default colors");
+	console.log("Emulator: seting default style");
 	this.color = "#fff";
 	this.backgroundColor = "#000";
+	this.bold = false;
 	console.log("Emulator: generating matrix");
 	this.generateMatrix();
 }
@@ -487,6 +493,10 @@ Emulator.Output.insert = function(char) {
 	var cell = Emulator.Output.getCursor();
 	cell.style.color = Emulator.Output.color;
 	cell.style.backgroundColor = Emulator.Output.backgroundColor;
+	if (Emulator.Output.bold)
+		cell.style.fontWeight = "bold";
+	else
+		cell.style.fontWeight = "normal";
 	Emulator.Output.getCursor().innerHTML = char;
 }
 Emulator.Output.moveCursor = function(x, y, lbreak) {
@@ -519,6 +529,7 @@ Emulator.Output.lineShift = function() {
 			var from = Emulator.Output.screen.getElementsByTagName("tr")[i].getElementsByTagName("td")[j];
 			to.innerHTML = from.innerHTML;
 			to.style.color = from.style.color;
+			to.style.fontWeight = from.style.fontWeight;
 			to.style.backgroundColor = from.style.backgroundColor;
 		}
 	}
@@ -527,6 +538,10 @@ Emulator.Output.lineShift = function() {
 		to.innerHTML = "";
 		to.style.color = Emulator.Output.color;
 		to.style.backgroundColor = Emulator.Output.backgroundColor;
+		if (Emulator.Output.bold)
+			to.style.fontWeight = "bold";
+		else
+			to.style.fontWeight = "normal";
 	}
 	if (--Emulator.Output.ypos < 0)
 		Emulator.Output.ypos = 0;
