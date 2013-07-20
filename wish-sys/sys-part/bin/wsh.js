@@ -33,6 +33,7 @@ WshClass.prototype.tick = function() {
 		if (files.error) {
 			stdout.write("\033[31mHome directory not found. Using / instead.\n\n");
 			this.Environment.array['HOME'] = "/";
+			this.Environment.array['PWD'] = "/";
 		}
 		this.state++;
 		break;
