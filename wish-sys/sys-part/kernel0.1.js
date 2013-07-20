@@ -357,6 +357,21 @@ Kernel.Filesystem.update = function(path) {
 	return file;
 }
 Kernel.Filesystem.getRealPath = function(name) {
+	var index;
+	while ((index = name.indexOf("/../")) != -1) {
+		name = name.replace("/../", "/");
+		var index2 = 0;
+		var index3 = 0;
+		while(index2 < index) {
+			index3 = index2;
+			index2 = name.indexOf("/", index3);
+		}
+		if (!index3)
+			return undefined;
+		name = name.substring(index3, index);
+	}
+	while ((index = name.indexOf("/./")) != -1)
+		name = name.replace("/./", "/");
 	return Kernel.Filesystem.root + name;
 }
 Kernel.Filesystem.addTTY = function(path, output, input) {
@@ -389,6 +404,17 @@ Kernel.Filesystem.addTTY = function(path, output, input) {
 	}
 	Kernel.Filesystem.files[path + "/o"] = out;
 	Kernel.Filesystem.files[path + "/i"] = inp
+}
+Kernel.Filesystem.getDirectory = function(path) {
+	console.log("Kernel: trying to read directory " + path);
+	var response = Emulator.Request.get(Kernel.Filesystem.getRealPath("/lib/kernel/files.php"), "scandir=" + encodeURIComponent(path), false, ret);
+	response = JSON.parse(response);
+	if (response.error) {
+		console.log("Kernel: error on reading: " + response.error);
+		return response.error;
+	}
+	return response;
+
 }
 
 

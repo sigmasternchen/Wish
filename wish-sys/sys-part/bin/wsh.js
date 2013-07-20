@@ -22,6 +22,7 @@ WshClass.prototype.tick = function() {
 	switch(this.state) {
 	case 0:
 		stdout.write("Welcome to WishOS 0.1 (WOSKernel 0.1)\n\n");
+		console.log("wsh: loading profile");
 		this.files['profile.d'] = new File("/etc/profile.d/env.json");
 		var array = JSON.parse(this.files['profile.d'].read());
 		for (var i = 0; i < array.length; i++) {
@@ -34,7 +35,7 @@ WshClass.prototype.tick = function() {
 	case 1:
 		var prompt = this.Environment.array['PS1'];
 		while (prompt.indexOf("\\w") != -1)
-			prompt = prompt.replace("\\w", (this.Environment.array['PWD'] == this.Environment.array['HOME']) ? "~" : this.Environment.array['PWD']);
+			prompt = prompt.replace("\\w", (this.Environment.array['PWD'].substring(0, this.Environment.array['HOME'].length) == this.Environment.array['HOME']) ? "~" : this.Environment.array['PWD']);
 		while (prompt.indexOf("\\u") != -1)
 			prompt = prompt.replace("\\u", this.username);
 		while (prompt.indexOf("\\u") != -1)

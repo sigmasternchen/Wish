@@ -100,6 +100,8 @@ LoginClass.prototype.tick = function() {
 	case 7:
 		stdout.write("\n");
 		console.log("login: okay, user='" + this.user.username + "' shell='" + this.user.shell + "' dir='" + this.user.home + "'");
+		Emulator.Output.shiftKey = 1;
+		OS.staticShift = 1;
 		this.execProgram(this.user);
 		this.state++;
 		break;
@@ -169,7 +171,7 @@ LoginClass.prototype.signalHandler = function(signal) {
 		//break;
 	default: //SIGKILL 
 		console.log("PID " + this.pid + " got Signal " + signal);
-		Kernel.ProcessManager.remove(this);
+		this.exit(1);
 		break;
 	}
 }
