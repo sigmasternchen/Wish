@@ -22,7 +22,7 @@ LoginClass.prototype.tick = function() {
 	case 0:
 		stdout.write("\033[?25h\033[0;0H");
 		if (OS.staticShift)
-			stdout.write("\033[0:" + (OS.staticShift - 1) + "H");
+			stdout.write("\033[" + (OS.staticShift - 1) + ";0H");
 		stdout.write("\033[0J");
 		this.state++;
 		break;
