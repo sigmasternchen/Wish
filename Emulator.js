@@ -475,7 +475,7 @@ Emulator.Output.getCursor = function() {
 }
 Emulator.Output.cursorOff = function() { // fix by Jonas
 	if(document.getElementById("cursor") != undefined)
-		document.getElementById("cursor").remove();
+		document.getElementById("cursor").parentNode.removeChild(document.getElementById("cursor"));
 }
 Emulator.Output.cursorOn = function() { // fix by Jonas
 	if (Emulator.Output.displayCursor) {
@@ -564,7 +564,11 @@ Emulator.Request = function() {
 }
 Emulator.Request.get = function(file, parameter, background, after) {
 	var http = new XMLHttpRequest();
-	http.open("GET", file + "?" + parameter, background);
+	if(parameter){
+		http.open("GET", file + "?" + parameter, background);
+	}else{
+		http.open("GET", file, background);
+	}
 	if (background) {
 		http.onreadystatechange = function() {
 			if (http.readyState == 4) {
