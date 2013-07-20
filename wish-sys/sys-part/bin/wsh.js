@@ -14,7 +14,6 @@ WshClass.prototype.main = function(args) {
 	this.username = args['1'];
 	this.Environment.array['HOME'] = args[2];
 	this.Environment.array['PWD'] = args[2];
-	
 }
 WshClass.prototype.tick = function() {
 	var stdout = this.files['stdout'];
@@ -29,6 +28,11 @@ WshClass.prototype.tick = function() {
 			while(array[i][1].indexOf("\\033") != -1) 
 				array[i][1] = array[i][1].replace("\\033", "\033");
 			this.Environment.array[array[i][0]] = array[i][1];
+		}
+		var files = Kernel.Filesystem.getDirectory(this.Environment.array['HOME']);
+		if (files.error) {
+			stdout.write("\033[31mHome directory not found. Using / instead.\n\n");
+			this.Environment.array['HOME'] = "/";
 		}
 		this.state++;
 		break;
