@@ -486,7 +486,6 @@ Emulator.Output.cursorOn = function() { // fix by Jonas
 		att.value = "cursor";
 		cursorElement.setAttributeNode(att);
 		cursorElement.style.background = "#000";
-		cursorElement.style.height = "100%";
 		cursorElement.style.border = "1px solid #fff";
 		Emulator.Output.getCursor().appendChild(cursorElement);
 	}
