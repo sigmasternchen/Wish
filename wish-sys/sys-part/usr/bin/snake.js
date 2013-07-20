@@ -60,7 +60,7 @@ SnakeClass.prototype.main = function(args){
 
 	
 	this.drawCentered(2,"bitowl presents");
-	this.stdout.write("\033[0:5H" + this.TITLE);
+	this.stdout.write("\033[5;0H" + this.TITLE);
 	this.drawCentered(17,"any key to continue");
 	this.drawCentered(23,"v 0.1");
 	
@@ -92,10 +92,10 @@ SnakeClass.prototype.startGame = function(){
 
 
 	// bottom bar
-	this.stdout.write("\033[0:23Hpress q to exit");
+	this.stdout.write("\033[23;0Hpress q to exit");
 	
 	// top bar
-	this.stdout.write("\033[1:0H----\033[1mSnake\033[0m----------------------------------------------------------------------");
+	this.stdout.write("\033[0;1H----\033[1mSnake\033[0m----------------------------------------------------------------------");
 	this.displayPoints();
 	
 	this.lastMove=new Date().getTime();
@@ -168,7 +168,7 @@ SnakeClass.prototype.tick = function(){
 	
 	
 	// move cursor to the top left at the end of every frame
-	this.stdout.write("\033[0:0H");
+	this.stdout.write("\033[0;0H");
 }
 
 SnakeClass.prototype.setPlayerPos = function(x,y){
@@ -228,23 +228,22 @@ SnakeClass.prototype.setField = function(x,y,valuekey){
 			
 	}
 	// y+1 because of the top bar
-	// stdout.write("\033["+(y+1)+";"+x+"H"+value);  // the RIGHT way TODO
-	this.stdout.write("\033["+x+":"+(y+1)+"H"+value); // the WishOS way
+	stdout.write("\033["+(y+1)+";"+x+"H"+value);  // the RIGHT way
 }
 
 SnakeClass.prototype.displayPoints = function(){
 	var len=(this.points+"").length;
-	this.stdout.write("\033["+(80-len-8-2)+":0Hpoints: "+this.points);
+	this.stdout.write("\033[0;"+(80-len-8-2)+"Hpoints: "+this.points);
 }
 // draws that text in the middle of a line
 SnakeClass.prototype.drawCentered = function(y,text){
-	this.stdout.write("\033["+Math.floor((80-text.length)/2)+":"+y+"H"+text);
+	this.stdout.write("\033["+y+";"+Math.floor((80-text.length)/2)+"H"+text);
 }
 
 
 SnakeClass.prototype.gameOver = function(){
 	this.gameState=this.GAMEOVER;
-	this.stdout.write("\033[0:5H\033[1m\033[31m"+this.GAME_OVER);
+	this.stdout.write("\033[5;0H\033[1m\033[31m"+this.GAME_OVER);
 	this.drawCentered(15,"\033[0mpress any key to start again");
 	this.drawCentered(17,"or q if this game has stressed you enough");
 }
@@ -253,11 +252,11 @@ SnakeClass.prototype.quitGame = function() {
 	Kernel.Scheduler.remove(this);
 	
 	this.stdout.write("\033[2J");
-	this.stdout.write("\033[0:6H" + this.TITLE);
+	this.stdout.write("\033[6;0H" + this.TITLE);
 	this.drawCentered(14,"I hope you had fun!");
 	this.drawCentered(16,"created by bitowl");	
 	this.drawCentered(17,"http://bitowl.de");	
-	this.stdout.write("\033[0:18H\n");
+	this.stdout.write("\033[18;1H\n");
 	this.exit(0);
 
 }
