@@ -190,7 +190,7 @@ SnakeClass.prototype.setPlayerPos = function(x,y){
 		case this.WALL:
 		case this.PLAYER:
 			this.gameOver();
-			break;
+			return;
 	}
 	
 	// remove last body part
@@ -228,7 +228,7 @@ SnakeClass.prototype.setField = function(x,y,valuekey){
 			
 	}
 	// y+1 because of the top bar
-	stdout.write("\033["+(y+1)+";"+x+"H"+value);  // the RIGHT way
+	this.stdout.write("\033["+(y+1)+";"+x+"H"+value);  // the RIGHT way
 }
 
 SnakeClass.prototype.displayPoints = function(){
