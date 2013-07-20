@@ -252,8 +252,8 @@ Emulator.ANSISequences.output = function(text) {
 				}
 				Emulator.Output.normalOutput(normalText);
 				Emulator.Output.cursorOff();
-				Emulator.Output.xpos = (parseInt(specialText2) >= Emulator.Output.xsize) ? (Emulator.Output.xsize - 1) : parseInt(specialText2);
-				Emulator.Output.ypos = (parseInt(specialText) >= Emulator.Output.ysize) ? (Emulator.Output.ysize - 1) : parseInt(specialText);
+				Emulator.Output.xpos = (parseInt(specialText) >= Emulator.Output.xsize) ? (Emulator.Output.xsize - 1) : parseInt(specialText);
+				Emulator.Output.ypos = (parseInt(specialText2) >= Emulator.Output.ysize) ? (Emulator.Output.ysize - 1) : parseInt(specialText2);
 				Emulator.Output.cursorOn();
 				specialText = "";
 				specialText2 = "";
