@@ -35,7 +35,7 @@ WshClass.prototype.tick = function() {
 	case 1:
 		var prompt = this.Environment.array['PS1'];
 		while (prompt.indexOf("\\w") != -1)
-			prompt = prompt.replace("\\w", (this.Environment.array['PWD'].substring(0, this.Environment.array['HOME'].length) == this.Environment.array['HOME']) ? "~" : this.Environment.array['PWD']);
+			prompt = prompt.replace("\\w", this.Environment.array['PWD'].replace(this.Environment.array['HOME'], "~/"));
 		while (prompt.indexOf("\\u") != -1)
 			prompt = prompt.replace("\\u", this.username);
 		while (prompt.indexOf("\\u") != -1)

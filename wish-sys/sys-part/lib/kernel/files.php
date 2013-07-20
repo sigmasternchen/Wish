@@ -1,4 +1,5 @@
 <?php
+	error_reporting(E_ERROR | E_PARSE); // because of warnings
 	if (isset($_GET['scandir'])) {
 		if (strpos($_GET['scandir'], "../") !== false)
 			die("illegal file path");
