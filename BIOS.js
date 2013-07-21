@@ -21,18 +21,18 @@ BIOS.init = function() {
 BIOS.main = function() {
 	console.log("BIOS: main");
 	console.log("BIOS: register 100ms-timer");
-	this.tickid = Emulator.registerTimer(100, BIOS.tick);
+	BIOS.tickid = Emulator.registerTimer(100, BIOS.tick);
 	console.log("BIOS: get hdds");
-	this.hdds = Emulator.Devices.getHarddisks();
-	var text = this.logo + "\n" + 
+	BIOS.hdds = Emulator.Devices.getHarddisks();
+	var text = BIOS.logo + "\n" + 
 		"Keyboard: found at name=" + Emulator.input.name + "\n" + 
 		"Monitor:  found at   id=" + Emulator.Output.screen.parentElement.id + "\n\n" + 
 		"Harddisks: \n";
-		for (var i = 0; i < this.hdds.length; i++) {
-			text += "   " + i + ": "+ this.hdds[i].name + "\n";
+		for (var i = 0; i < BIOS.hdds.length; i++) {
+			text += "   " + i + ": "+ BIOS.hdds[i].name + "\n";
 		}
 	Emulator.output(text);
-	if (this.hdds.length == 0) {
+	if (BIOS.hdds.length == 0) {
 		Emulator.output("No harddisks found. Please insert a bootable device and restart the computer..\n\n");
 		Emulator.output("\033[31msystem halt\033[0m");
 		console.log("BIOS: remove all event handlers");
@@ -40,7 +40,7 @@ BIOS.main = function() {
 		Emulator.unregisterTimer(this.tickid);
 		return;
 	}
-	if (this.hdds.length > 1) {
+	if (BIOSs.hdds.length > 1) {
 		Emulator.output("\nPlease select booting device by pressing the device nr. ");
 		this.state = 0;
 	} else {
