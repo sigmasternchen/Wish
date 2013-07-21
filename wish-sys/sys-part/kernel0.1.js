@@ -10,6 +10,9 @@ const SIGUSR2 = 31;
 const APPND = 1;
 const OVWRT = 2;
 
+const FILE = 1;
+const DIR = 2;
+
 const SYSHALT = 31415926
 
 var OS = function() {
@@ -287,6 +290,9 @@ File.prototype.forceUpdate = function() {
 File.prototype.exists = function() {
 	return Kernel.Filesystem.getFile(this.path).exists()
 }
+File.prototype.create = function() {
+	Kernel.Filesystem.create(this.path, FILE);
+}
 File.prototype.read = function(length) {
 	var val = Kernel.Filesystem.getFile(this.path).read(this.position, length);
 	if (length)
@@ -297,10 +303,10 @@ File.prototype.write = function(string) {
 	this.writeFIFO(string);
 }
 File.prototype.writeFIFO = function(string) {
-	Kernel.Filesystem.getFile(this.path).writeFIFO(string, writeMode);
+	Kernel.Filesystem.getFile(this.path).writeFIFO(string, this.writeMode);
 }
 File.prototype.writeLIFO = function(string) {
-	Kernel.Filesystem.getFile(this.path).writeLIFO(string, writeMode);
+	Kernel.Filesystem.getFile(this.path).writeLIFO(string, this.writeMode);
 }
 
 var InnerFile = function(path) {
@@ -329,6 +335,27 @@ InnerFile.prototype.writeLIFO = function(string, mode) {
 		this.content = string;
 }
 
+var AppStream = function() {
+}
+AppStream.prototype = new File;
+AppStream.prototype.content;
+AppStream.prototype.read = function() {
+	return this.content.pop();
+}
+AppStream.prototype.read = function() {
+	return this.content.pop();
+}
+AppStream.prototype.writeFIFO = function(string) {
+	this.content.input.reverse();
+	for (var i = 0; i < string.length; i++)
+		this.content.push(char);
+	this.content.reverse();
+}
+AppStream.prototype.writeLIFI = function(string) {
+	for(var i = 0; i < string.length; i++)
+		this.content.push(string[i]);
+}
+
 Kernel.Filesystem = function() {
 }
 Kernel.Filesystem.devices;
@@ -343,6 +370,11 @@ Kernel.Filesystem.init = function() {
 	Kernel.Filesystem.root = hdd.name + "/" + partition.name;
 	Kernel.Filesystem.files = new Array();
 
+}
+Kernel.Filesystem.create = function(name, type) {
+	var file = new InnerFile(name);
+	file.content = "";
+	Kernel.Filesystem.files[name] = file;
 }
 Kernel.Filesystem.getFile = function(path) {
 	if (Kernel.Filesystem.files[path])

@@ -40,7 +40,7 @@ BIOS.main = function() {
 		Emulator.unregisterTimer(BIOS.tickid);
 		return;
 	}
-	if (BIOSs.hdds.length > 1) {
+	if (BIOS.hdds.length > 1) {
 		Emulator.output("\nPlease select booting device by pressing the device nr. ");
 		BIOS.state = 0;
 	} else {
