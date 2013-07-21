@@ -37,14 +37,14 @@ BIOS.main = function() {
 		Emulator.output("\033[31msystem halt\033[0m");
 		console.log("BIOS: remove all event handlers");
 		Emulator.interrupts = new Array();
-		Emulator.unregisterTimer(this.tickid);
+		Emulator.unregisterTimer(BIOS.tickid);
 		return;
 	}
 	if (BIOSs.hdds.length > 1) {
 		Emulator.output("\nPlease select booting device by pressing the device nr. ");
-		this.state = 0;
+		BIOS.state = 0;
 	} else {
-		this.state = 1;
+		BIOS.state = 1;
 	}
 }
 BIOS.key = function(keycode) {
