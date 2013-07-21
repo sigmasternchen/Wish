@@ -97,7 +97,13 @@ WshClass.prototype.parseLine = function() {
 			params.splice(i, 1);
 	if (params.length == 0) {
 		return;
-	}	
+	}
+	for (var i = 0; i < params.length; i++) {
+		if (params[i][0] == "$") {
+			if (this.Environment.array[params[i].substring(1)])
+				params[i] = this.Environment.array[params[i].substring(1)];
+		}
+	}
 	var ok = false;
 	var name = params[0];
 	var file = "";
