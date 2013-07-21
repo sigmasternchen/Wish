@@ -98,12 +98,30 @@ WshClass.prototype.parseLine = function() {
 	if (params.length == 0) {
 		return;
 	}
+
 	for (var i = 0; i < params.length; i++) {
 		if (params[i][0] == "$") {
 			if (this.Environment.array[params[i].substring(1)])
 				params[i] = this.Environment.array[params[i].substring(1)];
 		}
 	}
+	
+	if (params[0].indexOf("=") != -1) {
+		do {
+			var array = params[0].split("=");
+			if (!array[0].length) {
+				params[0].substring(1);
+				break;
+			}
+			var name = array[0];
+			array.splice(0, 1);
+			var value = array.join("=");
+			this.Environment.array[name] = value;
+			params.splice(0, 1);
+		} while (false);
+	}
+
+
 	var ok = false;
 	var name = params[0];
 	var file = "";
