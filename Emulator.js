@@ -477,17 +477,21 @@ Emulator.Output.getCursor = function() {
 }
 Emulator.Output.cursorOff = function() { // fix by Jonas
 	if(document.getElementById("cursor") != undefined)
-		document.getElementById("cursor").parentNode.removeChild(document.getElementById("cursor"));
+		Emulator.Output.getCursor().removeAttributeNode(Emulator.Output.getCursor().getAttributeNode("id"));
+		//document.getElementById("cursor").parentNode.removeChild(document.getElementById("cursor"));
 }
 Emulator.Output.cursorOn = function() { // fix by Jonas
 	if (Emulator.Output.displayCursor) {
-		var cursorElement=document.createElement("div");
+		/*var cursorElement=document.createElement("div");
 		var att=document.createAttribute("id");
 		att.value = "cursor";
 		cursorElement.setAttributeNode(att);
 		cursorElement.style.background = "#000";
 		cursorElement.style.border = "1px solid #fff";
-		Emulator.Output.getCursor().appendChild(cursorElement);
+		Emulator.Output.getCursor().appendChild(cursorElement);*/
+		var att=document.createAttribute("id");
+		att.value = "cursor";
+		Emulator.Output.getCursor().setAttributeNode(att);
 	}
 }
 Emulator.Output.insert = function(char) {
