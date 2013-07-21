@@ -96,6 +96,12 @@ WshClass.prototype.parseLine = function() {
 		if (params[i].length == 0)
 			params.splice(i, 1);
 
+	if (params.length == 0) {
+		this.input = new Array();
+		return;
+	}
+
+
 	for (var i = 0; i < params.length; i++) {
 		if (params[i][0] == "$") {
 			if (this.Environment.array[params[i].substring(1)])
