@@ -95,9 +95,6 @@ WshClass.prototype.parseLine = function() {
 	for(var i = 0; i < params.length; i++)
 		if (params[i].length == 0)
 			params.splice(i, 1);
-	if (params.length == 0) {
-		return;
-	}
 
 	for (var i = 0; i < params.length; i++) {
 		if (params[i][0] == "$") {
@@ -121,6 +118,14 @@ WshClass.prototype.parseLine = function() {
 		} while (false);
 	}
 
+	for(var i = 0; i < params.length; i++)
+		if (params[i].length == 0)
+			params.splice(i, 1);
+
+	if (params.length == 0) {
+		this.input = new Array();
+		return;
+	}
 
 	var ok = false;
 	var name = params[0];
