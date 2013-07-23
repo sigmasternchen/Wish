@@ -134,6 +134,7 @@ LoginClass.prototype.execProgram = function(user) {
 	s += "	try {";
 	s += "		prog.main(JSON.parse('" + JSON.stringify(params) + "'));";
 	s += "	} catch (exception) {";
+	s += "		console.log(\"Prozess \" + prog.pid + \": \");";
 	s += "		console.dir(exception);";
 	s += "	}"; 
 	s += "}";

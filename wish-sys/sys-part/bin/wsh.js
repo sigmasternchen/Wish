@@ -109,6 +109,7 @@ WshClass.prototype.parseLine = function() {
 		}
 	}
 	
+
 	if (params[0].indexOf("=") != -1) {
 		do {
 			var array = params[0].split("=");
@@ -183,6 +184,7 @@ WshClass.prototype.parseLine = function() {
 	s += "	try {";
 	s += "		prog.main(JSON.parse('" + JSON.stringify(params) + "'));";
 	s += "	} catch (exception) {";
+	s += "		console.log(\"Prozess \" + prog.pid + \": \");";
 	s += "		console.dir(exception);";
 	s += "	}"; 
 	s += "}";

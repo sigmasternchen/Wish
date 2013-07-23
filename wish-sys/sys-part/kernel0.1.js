@@ -254,6 +254,7 @@ Process.prototype.tick = function() {
 Process.prototype.exit = function(code) {
 	this.exitCode = code;
 	Kernel.ProcessManager.quit(this);
+	throw code;
 }
 Process.prototype.signalHandler = function(signal) {
 	switch(signal) {
