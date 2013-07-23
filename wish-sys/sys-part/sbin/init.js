@@ -180,6 +180,8 @@ InitClass.prototype.signalHandler = function(signal) {
 		break;
 	case SIGKILL:
 		console.log("init: Got kill signal, shuting down.");
+		console.log("init: remove signal handler.");
+		this.signalHandler = function() {};
 		Kernel.shutdown();
 		break;
 	default:  

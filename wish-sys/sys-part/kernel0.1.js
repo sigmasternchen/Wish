@@ -123,6 +123,29 @@ Kernel.msgSuccess = function(success) {
 	Kernel.globalLog += text;
 	Emulator.output(text);
 }
+Kernel.shutdown = function() {
+	Emulator.output("\n\n\nShuting down...\nKilling all processes...\n");
+	var procs = new Array();
+	for (var i in Kernel.ProcessManager.processList) {
+		var proc = Kernel.ProcessManager.processList[i];
+		if (proc)
+			procs.push(proc);
+	}
+	//procs.reverse();
+	for (var i = 0; i < procs.length; i++) {
+		if (!procs[i].pid)
+			continue;
+		Emulator.output("sending sigkill to pid " + procs[i].pid + "...\n");
+		try {
+			procs[i].signalHandler(9);
+		} catch (exception) {
+		}	 
+	}
+	Emulator.output("all processes killed.\n\nRemoving event handlers\n\n");
+	Emulator.interrupts = new Array();
+	Emulator.output("System halt\n\n");
+	
+}
 
 Kernel.Scheduler = function() {
 }
