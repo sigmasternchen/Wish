@@ -362,16 +362,21 @@ InnerFile.prototype.writeLIFO = function(string, mode) {
 var AppStream = function() {
 }
 AppStream.prototype = new File;
-AppStream.prototype.content = "";
+AppStream.prototype.content = new Array();
 AppStream.prototype.eof = false;
 AppStream.prototype.isFile = false;
 AppStream.prototype.fromFile = function(file) {
-	this.content += file.read();
-	this.file = true;
+	var array = file.read().split("");
+	array.reverse();
+	for (var i = 0; i < array.length; i++)
+		this.content.push(array[i]);
+	this.isFile = true;
 }
 AppStream.prototype.read = function() {
-	return this.content.pop().charCodeAt(0);
-	this.eof = this.isFile && (!this.content);
+	var char = this.content.pop();	
+	this.eof = this.isFile && (!this.content.length);
+	if (char)
+		return char.charCodeAt(0);
 }
 AppStream.prototype.writeFIFO = function(string) {
 	this.content.input.reverse();

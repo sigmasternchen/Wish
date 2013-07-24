@@ -1,16 +1,21 @@
 var CatClass = function() {
 }
+CatClass.prototype = new Process();
 CatClass.prototype.buffer = new Array();
 CatClass.prototype.stream;
-CatClass.prototype = new Process();
 CatClass.prototype.main = function(args) {
 	if (args.length == 1) {
 		this.stream = this.files['stdin'];
 	} else {
 		this.stream = new AppStream();
-		var file = new File(args[1]);
-		if (!file.exists()) {
-			this.files['stdout'].write("cat: " + args[2].replace("\033", "\\033") + ": No such file or directory\n");
+		var env = Kernel.ProcessManager.processList[this.parentId].Environment; // ugly, change this
+		var name = args[1];
+		if (name.substring(0, 1) != "/")
+			name = env.array['PWD'] + name;
+		name = Kernel.Filesystem.shortenPath(name);
+		var file = new File(name);
+		if ((!name) || (!file.exists())) {
+			this.files['stdout'].write("cat: " + name.replace("\033", "\\033") + ": No such file or directory\n");
 			this.exit(1);
 		}
 		this.stream.fromFile(file);
@@ -21,11 +26,16 @@ CatClass.prototype.tick = function() {
 	var stdout = this.files['stdout'];
 	var code = this.stream.read();
 	if (code) {
-		if (KeyCodes.isEnter(code) || this.stream.eof) {
-			stdout.write("\n" + this.buffer.join("") + "\n");
+		if (KeyCodes.isEnter(code)) {
+			stdout.write(this.buffer.join("") + "\n");
 			this.buffer = new Array();
 		} else {
 			this.buffer.push(KeyCodes.normalKey(code));
 		}
+		if (this.stream.eof) {
+			stdout.write(this.buffer.join("") + "\n");
+			this.exit(0);
+		}
+	} else {
 	}	
 }
