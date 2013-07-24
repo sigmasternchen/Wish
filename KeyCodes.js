@@ -10,7 +10,7 @@ KeyCodes.isDelete = function(code) {
 	return (code == 46);
 }
 KeyCodes.isEnter = function(code) {
-	return (code == 13);
+	return (code == 13) || (code == 10);
 }
 KeyCodes.isEscape = function(code) {
 	return (code == 27);
