@@ -96,6 +96,44 @@ WshClass.prototype.parseLine = function() {
 		if (params[i].length == 0)
 			params.splice(i, 1);
 
+	var quote = false;
+	var parts = new Array();
+	for (var i = 0; i < params.length; i++) {
+		var tmp = params[i];
+		var pos = 0;
+		while ((pos = tmp.indexOf("\"", pos)) != -1) {
+			if (tmp[pos - 1] != "\\")
+				tmp = tmp.substring(0, pos) + tmp.substring(pos + 1);
+			else 
+				pos++;
+			console.log(tmp);
+			console.log(pos);
+		}	
+		if (quote) {
+			parts[parts.length - 1] += " " + tmp;
+		} else {
+			parts.push(tmp);
+		}
+		tmp = params[i];
+		var pos = 0;
+		while ((pos = tmp.indexOf("\"")) != -1) {
+			var pos2 = tmp.indexOf("\\\"");
+			if ((pos2 == -1) || (pos2 != pos - 1)) 
+				quote = !quote;
+			tmp = tmp.substring(pos + 1);
+		}
+		console.log(params[i]);
+		console.dir(parts);
+	}
+	// ignore quote
+	if (quote) {
+		var lparts = parts[parts.length - 1].split(" ");
+		parts.splice(parts.length - 1, 1);
+		for (var i = 0; i < lparts.length; i++)
+			parts.push(lparts[i]);
+	}
+	params = parts;		
+
 	if (params.length == 0) {
 		this.input = new Array();
 		return;
