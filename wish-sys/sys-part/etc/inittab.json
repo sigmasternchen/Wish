@@ -2,12 +2,19 @@
 	"initdefault": 3,
 	"sysinit": [
 	],
+	"l2": [
+		{
+			"//": "basic wish sound architecture",
+			"command": "/bin/bwsa.js",
+			"files": [
+			]
+		}
+	],
 	"l3": [
 		{
-			"command": "/sbin/login.js",
+			"//": "basic io",
+			"command": "/sbin/getty.js /dev/tty1",
 			"files": [
-				"stdout",
-				"stdin"
 			]
 		}
 	]

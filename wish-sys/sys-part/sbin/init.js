@@ -12,26 +12,23 @@ InitClass.prototype.Start.index;
 InitClass.prototype.modifyLevel = false;
 InitClass.prototype.main = function(args) {
 	this.childList = new Array();
-	var stdout = this.files['stdout'];
 	if (this.pid == 1) {
-		stdout.write("\ninit: we are pid 1");
-		stdout.write("\n      trying to daemonize");
-		stdout.write("\n      adding to scheduler job list");
+		Emulator.output("\ninit: we are pid 1");
+		Emulator.output("\n      trying to daemonize");
+		Emulator.output("\n      adding to scheduler job list");
 		Kernel.Scheduler.add(this);
 	} else {
 
 	}
 }
 InitClass.prototype.tick = function() {
-	var stdout = this.files['stdout'];
-	var stdin = this.files['stdin'];
 	switch(this.state) {
 	case 0:		
 		this.state++;
-		stdout.write("\ninit: we are a daemon now ... yay ...");
-		stdout.write("\nreseting system runlevel");
+		Emulator.output("\ninit: we are a daemon now ... yay ...");
+		Emulator.output("\nreseting system runlevel");
 		OS.runlevel = 0;
-		stdout.write("\nloading /etc/inittab.json ...");
+		Emulator.output("\nloading /etc/inittab.json ...");
 		var file = Kernel.Filesystem.getFile("/etc/inittab.json");
 		this.files[file.path] = file;
 		this.inittab = JSON.parse(file.read());
@@ -44,8 +41,8 @@ InitClass.prototype.tick = function() {
 		break;
 	case 2:
 		this.state++;
-		stdout.write("\033[?25l\n");
-		stdout.write("destination runlevel=" + this.destLevel);
+		Emulator.output("\033[?25l\n");
+		Emulator.output("destination runlevel=" + this.destLevel);
 		break;
 	case 3:
 		this.Start.array = this.inittab.sysinit;
@@ -83,10 +80,12 @@ InitClass.prototype.tick = function() {
 		break;
 	case 100: // input runlevel
 		this.state++;
-		stdout.write("\nno default runlevel defined");
-		stdout.write("\ntype in destination level: \033[?25h");
+		Emulator.output("\nno default runlevel defined");
+		Emulator.output("\ntype in destination level: \033[?25h");
 	case 101:
-		var keycode = stdin.read();
+		var keycode = Kernel.IO.inputBuffer.pop();
+		if (!keycode)
+			break;
 		var char = KeyCodes.normalKey(keycode);
 		if (isNumber(char)) {
 			this.destLevel = parseInt(char);
