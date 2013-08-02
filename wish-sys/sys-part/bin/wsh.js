@@ -106,8 +106,6 @@ WshClass.prototype.parseLine = function() {
 				tmp = tmp.substring(0, pos) + tmp.substring(pos + 1);
 			else 
 				pos++;
-			console.log(tmp);
-			console.log(pos);
 		}	
 		if (quote) {
 			parts[parts.length - 1] += " " + tmp;
@@ -122,8 +120,6 @@ WshClass.prototype.parseLine = function() {
 				quote = !quote;
 			tmp = tmp.substring(pos + 1);
 		}
-		console.log(params[i]);
-		console.dir(parts);
 	}
 	// ignore quote
 	if (quote) {
