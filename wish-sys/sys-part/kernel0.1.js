@@ -483,7 +483,6 @@ Kernel.Filesystem.getDirectory = function(path) {
 		return response;
 	}
 	return response;
-
 }
 
 
