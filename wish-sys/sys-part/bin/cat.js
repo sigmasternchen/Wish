@@ -8,7 +8,7 @@ CatClass.prototype.main = function(args) {
 		this.stream = this.files['stdin'];
 	} else {
 		this.stream = new AppStream();
-		var env = Kernel.ProcessManager.processList[this.parentId].Environment; // ugly, change this
+		var env = this.Environment;
 		var name = args[1];
 		if (name.substring(0, 1) != "/")
 			name = env.array['PWD'] + name;

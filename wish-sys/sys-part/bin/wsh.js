@@ -213,6 +213,7 @@ WshClass.prototype.parseLine = function() {
 	s += "	for(var i = 0; i < paths.length; i++) {";
 	s += "		prog.files[paths[i][0]] = Kernel.Filesystem.getFile(paths[i][1]);";
 	s += "	}";
+	s += "	prog.Environment = Kernel.ProcessManager.processList[" + this.pid + "].Environment;";
 	s += "	Kernel.ProcessManager.add(prog);";
 	s += "	console.log(\"wsh: start command '" + file + "'...\");";
 	s += "	try {";

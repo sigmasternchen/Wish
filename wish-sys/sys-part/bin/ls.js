@@ -3,7 +3,7 @@ var LsClass = function() {
 LsClass.prototype = new Process();
 LsClass.prototype.main = function(args) {
 	var stdout = this.files['stdout'];
-	var env = Kernel.ProcessManager.processList[this.parentId].Environment.array; // ugly, change this
+	var env = this.Environment.array;
 	var folder = "";
 	if (args.length == 1) {
 		folder = env['PWD'];
@@ -14,6 +14,7 @@ LsClass.prototype.main = function(args) {
 	if (files.error) {
 		stdout.write("ls: cannot access " + folder + ": " + files.error + "\n");
 		this.exit(2);
+		return; // ugly, change this
 	}
 	for (var i = 0; i < files.length; i++) {
 		if (files[i].substring(0, 1) != ".")
