@@ -6,4 +6,12 @@
 		"home": "/root/",
 		"shell": "/bin/wsh.js"
 	}
+	{
+		"id": 1,
+		"username": "nobody",
+		"//": "password = nobody",
+		"password": "6382b3cc881412b77bfcaeed026001c00d9e3025e66c20f6e7e92f079851462a",
+		"home": "/home/nobody/",
+		"shell": "/bin/wsh.js"
+	}
 ]
