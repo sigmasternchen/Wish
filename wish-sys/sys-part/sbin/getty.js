@@ -6,7 +6,6 @@ GettyClass.prototype.file = "";
 GettyClass.prototype.login = "/sbin/login";
 GettyClass.prototype.main = function(args) {
 	console.log("getty: started");
-	console.log("getty: adding to scheduler");
 	this.parseArgs(args);
 	pathArray = new Array();
 	pathArray[0] = ["stdout", this.file + "/o"];
