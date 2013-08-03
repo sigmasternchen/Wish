@@ -78,7 +78,7 @@ Kernel.machine = function() {
 		Kernel.msgSuccess(true);
 		Kernel.msgOut("  creating class instance", true);
 		var init = new InitClass();		
-		init.init(1);
+		init.init(0);
 		Kernel.msgOut("  adding handler for stdio on /dev/tty1", true);
 		init.files['stdin'] = Kernel.Filesystem.getFile("/dev/tty1/i");
 		init.files['stdout'] = Kernel.Filesystem.getFile("/dev/tty1/o");
@@ -206,7 +206,7 @@ Kernel.ProcessManager.init = function() {
 }
 Kernel.ProcessManager.add = function(process) {
 	this.processList[process.pid] = process;
-	if (process.pid != process.parentId)
+	if (process.parentId != 0)
 		this.processList[process.parentId].signalHandler(SIGCHLD);
 }
 Kernel.ProcessManager.quit = function(process) {

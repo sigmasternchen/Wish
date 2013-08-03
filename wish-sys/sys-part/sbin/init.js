@@ -55,6 +55,7 @@ InitClass.prototype.tick = function() {
 		} else {
 			this.execProgram();
 			this.Start.index++;
+			this.state = 31;
 		}
 		break;
 	case 5:
@@ -139,7 +140,8 @@ InitClass.prototype.execProgram = function() {
 	s += "	} catch (exception) {";
 	s += "		console.log(\"Prozess \" + prog.pid + \": \");";
 	s += "		console.dir(exception);";
-	s += "	}"; 
+	s += "	}";
+	s += "	Kernel.ProcessManager.processList[1].state = 4;"; 
 	s += "}";
 	eval(s);
 	Kernel.ProcessManager.load(name, func);
