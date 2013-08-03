@@ -171,8 +171,10 @@ Kernel.Scheduler.tick = function() {
 	try {
 		Kernel.Scheduler.jobs[Kernel.Scheduler.activ].tick();
 	} catch (error) {
-		console.log("Kernel: a wild error appeared in pid" + pid + ".tick:");
-		console.dir(error);
+		if ((typeof error) != "number") {
+			console.log("Kernel: a wild error appeared in pid" + pid + ".tick:");
+			console.dir(error);
+		}
 	}
 	Kernel.time++;
 	Kernel.Scheduler.working = false;
