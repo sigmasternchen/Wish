@@ -167,7 +167,13 @@ Kernel.Scheduler.tick = function() {
 	Kernel.Scheduler.working = true;
 	Kernel.Scheduler.activ++;
 	Kernel.Scheduler.activ %= Kernel.Scheduler.jobs.length;
-	Kernel.Scheduler.jobs[Kernel.Scheduler.activ].tick();
+	var pid = Kernel.Scheduler.jobs[Kernel.Scheduler.activ].pid;
+	try {
+		Kernel.Scheduler.jobs[Kernel.Scheduler.activ].tick();
+	} catch (error) {
+		console.log("Kernel: a wild error appeared in pid" + pid + ".tick:");
+		console.dir(error);
+	}
 	Kernel.time++;
 	Kernel.Scheduler.working = false;
 }
