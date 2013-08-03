@@ -14,7 +14,6 @@ LsClass.prototype.main = function(args) {
 	if (files.error) {
 		stdout.write("ls: cannot access " + folder + ": " + files.error + "\n");
 		this.exit(2);
-		return; // ugly, change this
 	}
 	for (var i = 0; i < files.length; i++) {
 		if (files[i].substring(0, 1) != ".")
