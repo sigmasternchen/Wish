@@ -106,7 +106,8 @@ SnakeClass.prototype.tick = function(){
 	
 	if(this.gameState == this.INGAME){
 	
-		var input=this.stdin.read();
+		var input=this.stdin.read(1);
+		input = input.charCodeAt(0);
 		if(input){
 			var changedword=false;
 	
@@ -151,11 +152,13 @@ SnakeClass.prototype.tick = function(){
 		}
 	}else if(this.gameState==this.INTRO){
 		var input=this.stdin.read();
+		input = input.charCodeAt(0);
 		if(input){
 			this.startGame();
 		}
 	}else if(this.gameState==this.GAMEOVER){
 		var input=this.stdin.read();
+		input = input.charCodeAt(0);
 		if(input){
 			if(input==this.QUIT){
 				this.quitGame();
