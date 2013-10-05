@@ -980,17 +980,18 @@ Kernel.Filesystem.vfs.getFileByPath = function (path) {
 }
 Kernel.Filesystem.vfs.createFile = function (path) {
 	var paths = path.split("/");
-	var pathss = paths.splice(paths.length - 1, 1);
-	pathss = pathss.join("/");
-	var parent = Kernel.Filesystem.vfs.getFileByPath(pathss);
+	var pathss = path.split("/");
+	paths.splice(paths.length - 1, 1);
+	paths = paths.join("/");
+	var parent = Kernel.Filesystem.vfs.getFileByPath(paths);
 	if (!parent)
-		throw("no such file or directory: " + pathss);
-	var timestampOfCreattion = (new Date()).getTime();
+		throw("no such file or directory: " + paths);
+	var timestampOfCreation = (new Date()).getTime();
 	file = new InnerFile();
-	file.name = paths[paths.length - 1];
+	file.name = pathss[pathss.length - 1];
 	file.id = Kernel.Filesystem.vfs.index++;
 	var uid = Kernel.ProcessManager.getUserByPID(Kernel.ProcessManager.getCurrentPID());
-	var gid = Kernel.ProcessManager.getUserById(uid).group;
+	var gid = Kernel.UserManager.getUserById(uid).group;
 	file.ownerID = uid;
 	file.groupID = gid;
 	file.parent = parent.id;

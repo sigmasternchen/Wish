@@ -18,7 +18,27 @@ InitClass.prototype.main = function(args) {
 		Emulator.output("\n      adding to scheduler job list");
 		Kernel.Scheduler.add(this);
 	} else {
-
+		var uid = Kernel.ProcessManager.getUserByPID(this.pid);
+		if (uid != 0) {
+			this.files['stdout'].write("init: need to be root\n");
+			this.exit(1);
+		}
+		if (args.length != 2) {
+			this.files['stdout'].write("init: missing runlevel\n");
+			this.exit(1);
+		}
+		if (!isNumber(args[1])) {
+			this.files['stdout'].write("init: illegal runlevel\n");
+			this.exit(1);
+		}
+		var tmp = new File("/tmp/destLevel.1");
+		tmp.writeMode = MODE_OVRWD;
+		tmp.notExistsMode = MODE_CREATE;
+		tmp.write(parseInt(args[1]));
+		tmp.close();
+		var init = Kernel.ProcessManager.getProcess(1); // init has pid 1
+		init.signalHandler(SIGUSR1);
+		this.exit(0);
 	}
 }
 InitClass.prototype.tick = function() {
