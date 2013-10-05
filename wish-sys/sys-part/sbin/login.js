@@ -5,13 +5,14 @@ LoginClass.prototype.state = 0;
 LoginClass.prototype.childList = new Array();
 LoginClass.prototype.username;
 LoginClass.prototype.password;
+LoginClass.prototype.cpassword;
 LoginClass.prototype.users;
 LoginClass.prototype.user;
 LoginClass.prototype.main = function(args) {
 	console.log("login: loading /lib/sha256.js");
-	Kernel.ProcessManager.load("/lib/sha256.js", nothing);
+	Kernel.ProcessManager.lib("/lib/sha256.js");
 	console.log("login: loading /lib/utf8.js");
-	Kernel.ProcessManager.load("/lib/utf8.js", nothing);
+	Kernel.ProcessManager.lib("/lib/utf8.js");
 	console.log("login: adding to scheduler job list");
 	Kernel.Scheduler.add(this);	
 }
@@ -33,9 +34,10 @@ LoginClass.prototype.tick = function() {
 		this.state++;
 		break;
 	case 2:
-		var code = stdin.read();
-		if (!code)
+		var char = stdin.read(1);
+		if (!(char.length))
 			break;
+		var code = (new String(char)).charCodeAt(0);
 		if (KeyCodes.isEnter(code)) {
 			this.state++;
 			stdout.write("\n");
@@ -48,7 +50,6 @@ LoginClass.prototype.tick = function() {
 			stdout.write("\033[1D \033[1D");
 			break;
 		}
-		var char = KeyCodes.normalKey(code);
 		this.username.push(char);
 		stdout.write(char);
 		break;
@@ -57,9 +58,10 @@ LoginClass.prototype.tick = function() {
 		this.state++;
 		break;
 	case 4:
-		var code = stdin.read();
-		if (!code)
+		var char = stdin.read(1);
+		if (!char.length)
 			break;
+		var code = (new String(char)).charCodeAt(0);
 		if (KeyCodes.isEnter(code)) {
 			this.state++;
 			stdout.write("\n");
@@ -71,21 +73,20 @@ LoginClass.prototype.tick = function() {
 			this.password.pop();
 			break;
 		}
-		var char = KeyCodes.normalKey(code);
 		this.password.push(char);
 		break;
 	case 5:
 		this.username = this.username.join("");
-		this.password = Sha256.hash(this.password.join(""));
-		this.files['passwd'] = Kernel.Filesystem.getFile("/etc/passwd.json");
-		Kernel.Filesystem.update("/etc/passwd.json");
-		this.users = JSON.parse(this.files['passwd'].read());
+		this.cpassword = Sha256.hash(this.password.join(""));
+		var file = new File("/etc/passwd.json");
+		this.users = JSON.parse(file.read());
+		file.close();
 		this.state++;
 		break;
 	case 6:
 		for (var i = 0; i < this.users.length; i++) {
 			if (this.users[i].username == this.username) {
-				if (this.users[i].password == this.password) {
+				if (this.users[i].password == this.cpassword) {
 					this.state = 7;
 					this.user = this.users[i];
 				}
@@ -114,32 +115,14 @@ LoginClass.prototype.tick = function() {
 LoginClass.prototype.execProgram = function(user) {
 	var name = user.shell;
 	params = [name, user.username, user.home];
-	var pathArray = new Array();
-	pathArray[0] = ["stdout", this.files['stdout'].path];
-	pathArray[1] = ["stdin", this.files['stdin'].path];
-	var s = "";
-	s += "var func = function () { ";
-	s += "	try {";
-	s += "		var prog = new " + Kernel.ProcessManager.getClassNameFromFileName(name) + "();";
-	s += "	} catch (exception) {";
-	s += "		console.dir(exception);";
-	s += "	}"; 
-	s += "	prog.init(" + this.pid + ");";
-	s += "	var paths = JSON.parse('" + JSON.stringify(pathArray) + "');";
-	s += "	for(var i = 0; i < paths.length; i++) {";
-	s += "		prog.files[paths[i][0]] = Kernel.Filesystem.getFile(paths[i][1]);";
-	s += "	}";
-	s += "	Kernel.ProcessManager.add(prog);";
-	s += "	console.log(\"login: start shell '" + name + "'...\");";
-	s += "	try {";
-	s += "		prog.main(JSON.parse('" + JSON.stringify(params) + "'));";
-	s += "	} catch (exception) {";
-	s += "		console.log(\"Prozess \" + prog.pid + \": \");";
-	s += "		console.dir(exception);";
-	s += "	}"; 
-	s += "}";
-	eval(s);
-	Kernel.ProcessManager.load(name, func);
+	var pid = Kernel.ProcessManager.exec(name, [], false);
+	var prog = Kernel.ProcessManager.getProcess(pid);
+	prog.files['stdin'] = this.files['stdin'];
+	prog.files['stdout'] = this.files['stdout'];
+	Kernel.UserManager.changeProcessUser(pid, this.user.username, this.password.join());
+	this.password = new Array();
+	console.log("login: program startet: " + name);
+	prog.main(params);
 }
 LoginClass.prototype.signalHandler = function(signal) {	
 	switch(signal) {

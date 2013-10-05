@@ -29,7 +29,7 @@ InitClass.prototype.tick = function() {
 		Emulator.output("\nreseting system runlevel");
 		OS.runlevel = 0;
 		Emulator.output("\nloading /etc/inittab.json ...");
-		var file = Kernel.Filesystem.getFile("/etc/inittab.json");
+		var file = new File("/etc/inittab.json");
 		this.files[file.path] = file;
 		this.inittab = JSON.parse(file.read());
 		break;
@@ -55,7 +55,6 @@ InitClass.prototype.tick = function() {
 		} else {
 			this.execProgram();
 			this.Start.index++;
-			this.state = 31;
 		}
 		break;
 	case 5:
@@ -100,8 +99,8 @@ InitClass.prototype.tick = function() {
 	}
 }
 InitClass.prototype.changeRunlevel = function() {
-	Kernel.Filesystem.update("/tmp/destLevel.1");
-	var runlevel = Kernel.Filesystem.getFile("/tmp/destLevel.1").read();
+	var file = new File("/tmp/destLevel.1");
+	var runlevel = file.read();
 	this.destLevel = parseInt(runlevel);
 	this.state = 5;
 }
@@ -117,34 +116,16 @@ InitClass.prototype.execProgram = function() {
 	var name = params[0];
 	var files = this.Start.array[this.Start.index].files;
 	var pathArray = new Array();
+
+	var pid = Kernel.ProcessManager.exec(name, [], false);
+	var prog = Kernel.ProcessManager.getProcess(pid);
 	if (files)
 		for (var i = 0; i < files.length; i++) {
-			pathArray.push([files[i], this.files[files[i]].path]);
+			prog.files[files[i]] = this.files[files[i]];
 		}
-	var s = "";
-	s += "var func = function () { ";
-	s += "	try {";
-	s += "		var prog = new " + Kernel.ProcessManager.getClassNameFromFileName(name) + "();";
-	s += "	} catch (exception) {";
-	s += "		console.dir(exception);";
-	s += "	}"; 
-	s += "	prog.init(1);";
-	s += "	var paths = JSON.parse('" + JSON.stringify(pathArray) + "');";
-	s += "	for(var i = 0; i < paths.length; i++) {";
-	s += "		prog.files[paths[i][0]] = Kernel.Filesystem.getFile(paths[i][1]);";
-	s += "	}";
-	s += "	Kernel.ProcessManager.add(prog);";
-	s += "	console.log(\"init: start command '" + command + "'...\");";
-	s += "	try {";
-	s += "		prog.main(JSON.parse('" + JSON.stringify(params) + "'));";
-	s += "	} catch (exception) {";
-	s += "		console.log(\"Prozess \" + prog.pid + \": \");";
-	s += "		console.dir(exception);";
-	s += "	}";
-	s += "	Kernel.ProcessManager.processList[1].state = 4;"; 
-	s += "}";
-	eval(s);
-	Kernel.ProcessManager.load(name, func);
+	console.log("init: starting program " + command)
+	prog.main(params);
+	console.log("init: process started with pid: " + prog.pid);
 }
 InitClass.prototype.signalHandler = function(signal) {
 	switch(signal) {

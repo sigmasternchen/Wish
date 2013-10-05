@@ -11,14 +11,35 @@ Math.sign = function(x) {
 }
 
 function nothing() {
-
 }
 
 function ret(v) {
 	return v;
 }
+
 function isNumber(n) {
 	return (parseInt(n) + "" == n);
+}
+
+function wait (ms) {
+	var now = (new Date()).getTime();
+	var to = now + ms;
+	while (now != to)
+		now = (new Date()).getTime();
+}
+
+function clone(object){
+	if(!object)
+		return object;
+	if (typeof object != "object")
+        	return obj;
+
+	var tmp = object.constructor();
+
+	for(var key in object)
+		tmp[key] = clone(object[key]);
+
+	return tmp;
 }
 
 var main = function () {

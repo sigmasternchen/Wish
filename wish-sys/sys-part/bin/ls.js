@@ -10,11 +10,17 @@ LsClass.prototype.main = function(args) {
 	} else {
 		folder = args[1];
 	}
-	var files = Kernel.Filesystem.getDirectory(folder);
-	if (files.error) {
-		stdout.write("ls: cannot access " + folder + ": " + files.error + "\n");
+
+	folder = Kernel.Filesystem.shortenPath(folder);
+
+	var file = new File(folder);
+	if (!file.exists()) {
+		stdout.write("ls: no such file or directory: " + folder + "\n");
 		this.exit(2);
 	}
+	
+	var files = Kernel.Filesystem.readDir(folder);
+
 	for (var i = 0; i < files.length; i++) {
 		if (files[i].substring(0, 1) != ".")
 			stdout.write(files[i] + "\n");

@@ -27,7 +27,7 @@ KillClass.prototype.main = function(args){
 			ret = 1;
 			continue;
 		}
-		var proc = Kernel.ProcessManager.processList[parseInt(pids[i])];
+		var proc = Kernel.ProcessManager.getProcess(parseInt(pids[i]);
 		if (!proc) {
 			stdout.write("kill: kill " + pids[i] + ": no such process\n");
 			ret = 1;

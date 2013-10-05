@@ -11,18 +11,42 @@ CdClass.prototype.main = function(args) {
 		folder = args[1];
 	}
 	if (folder.substring(0, 1) != "/")
-		folder = env.array['PWD'] + folder;
-	if (folder[folder.length - 1] != "/")
-		folder += "/";
-	folder = Kernel.Filesystem.shortenPath(folder);
-	if (!folder) {
+		folder = env.array['PWD'] + "/" + folder;
+	try {
+		folder = Kernel.Filesystem.shortenPath(folder);
+	} catch (e) {
 		this.exit(0);
 	}
-	var files = Kernel.Filesystem.getDirectory(folder);
-	if (files.error) {
-		stdout.write("cd: cannot access " + folder + ": " + files.error + "\n");
+	var file = new File(folder);
+	console.dir(file);
+	if (!file.exists()) {
+		stdout.write("cd: no such file or directory: " + folder + "\n");
 		this.exit(2);
 	}
+	if (!(file.getPermissions() & PERM_D)) {
+		stdout.write("cd: not a directory: " + folder + "\n");
+		this.exit(1);
+	}
+	var uid = Kernel.ProcessManager.getUserByPID(Kernel.ProcessManager.getCurrentPID());
+	if (uid != 0) {
+		if (uid == file.getOwner()) {
+			if (!(file.getPermissions() & PERM_UX)) {
+				stdout.write("cd: permission denied: " + folder + "\n");
+				this.exit(3);
+			}
+		} else if (Kernel.UserManager.isUserIdInGroupId(uid, file.getGroup())) {
+			if (!(file.getPermissions() & PERM_GX)) {
+				stdout.write("cd: permission denied: " + folder + "\n");
+				this.exit(3);
+			}
+		} else {
+			if (!(file.getPermissions() & PERM_OX)) {
+				stdout.write("cd: permission denied: " + folder + "\n");
+				this.exit(3);
+			}
+		}
+	}
+
 	env.array['PWD'] = folder;
 	this.exit(0);
 }

@@ -4,6 +4,10 @@ CatClass.prototype = new Process();
 CatClass.prototype.buffer = new Array();
 CatClass.prototype.stream;
 CatClass.prototype.main = function(args) {
+
+	this.files['stdout'].write("not ready yet");
+	this.exit(0);
+
 	if (args.length == 1) {
 		this.stream = this.files['stdin'];
 	} else {

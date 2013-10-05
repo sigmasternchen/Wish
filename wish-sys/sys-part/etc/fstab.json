@@ -1,0 +1,10 @@
+[
+	{
+		"//": "root FS",
+		"mountPoint": "/",
+		"hdd": "wish-sys",
+		"par": "sys-part",
+		"fs": "basefs",
+		"options": ""
+	}
+]

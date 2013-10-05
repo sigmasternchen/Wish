@@ -63,7 +63,7 @@ Emulator.addEventHandlers = function() {
 	console.log("Emulator: adding key-down-event");
 	//this.input.onkeydown = this.handleKeyDown;
 	window.onkeydown = this.handleKeyDown;
-	var timerid = window.setInterval(function() {/*for (var i = 0; i < 10; i++)*/ Emulator.tick(0);}, 1);
+	var timerid = window.setInterval(function() {/*for (var i = 0; i < 1000; i++)*/ Emulator.tick(0);}, 1);
 	Emulator.mainTickId = timerid;
 	console.log("Emulator: adding default 1ms (or cheated 0.1 ms) tick with tid=" + timerid);
 	this.refocus();

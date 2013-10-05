@@ -3,15 +3,17 @@
 		"id": 0,
 		"username": "root",
 		"password": "ce5ca673d13b36118d54a7cf13aeb0ca012383bf771e713421b4d1fd841f539a",
-		"home": "/root/",
-		"shell": "/bin/wsh.js"
+		"home": "/root",
+		"shell": "/bin/wsh.js",
+		"group": 0
 	},
 	{
 		"id": 1,
 		"username": "nobody",
 		"//": "password = nobody",
 		"password": "6382b3cc881412b77bfcaeed026001c00d9e3025e66c20f6e7e92f079851462a",
-		"home": "/home/nobody/",
-		"shell": "/bin/wsh.js"
+		"home": "/home/nobody",
+		"shell": "/bin/wsh.js",
+		"group": 1
 	}
 ]

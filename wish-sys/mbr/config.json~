@@ -6,7 +6,7 @@
 			"hdd": 0,
 			"partition": 0,
 			"label": "wish os",
-			"kernel": "kernel0.9.js",
+			"kernel": "kernel0.1.js",
 			"parameters": ""
 		}
 	]
