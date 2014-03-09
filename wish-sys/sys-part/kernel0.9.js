@@ -39,6 +39,9 @@ const MODE_APPND = 4;
 const MODE_THROW  = 5;
 const MODE_CREATE = 6;
 
+// special chars
+const EOF = String.fromCharCode(26);
+
 var OS = function() {
 }
 OS.system;
@@ -461,6 +464,7 @@ InnerFile.prototype.permissions = PERM_GR | PERM_UW | PERM_UR;
 InnerFile.prototype.parent; // id
 InnerFile.prototype.mountPoint;
 InnerFile.prototype.removeReaded = false;
+InnerFile.prototype.neverEnds = false;
 InnerFile.prototype.content = "";
 InnerFile.prototype.created = 0;
 InnerFile.prototype.changed = 0;
@@ -520,6 +524,8 @@ Kernel.Filesystem.initCon = function() {
 	Kernel.msgSuccess(true);
 }
 Kernel.Filesystem.shortenPath = function(path) {
+	while (path.indexOf("//") != -1)
+		path = path.replace("//", "/");
 	if (path == "/")
 		return "/";
 	if (path.substring(path.length - 1) == "/")
@@ -529,7 +535,7 @@ Kernel.Filesystem.shortenPath = function(path) {
 	var parts = path.split("/");
 	for (var i = 0; i < parts.length; i++) {
 		if (!parts[i])
-			throw("format error");
+			throw("format error: " + path);
 		if (parts[i].length == 0) {
 			parts.splice(0, i);
 			i = 0;
@@ -588,15 +594,21 @@ Kernel.Filesystem.read = function(path, length, index, readMode) {
 	if (length !== undefined) {
 		if (index !== undefined) {
 			text = content.substring(index, length + index);
+			if ((text.length < length) && (!file.neverEnds))
+				text += EOF;
 			if (file.removeReaded)
 				content = content.substring(length + index);
 		} else {
 			text = content.substring(0, length);
+			if ((text.length < length) && (!file.neverEnds))
+				text += EOF;
 			if (file.removeReaded)
 				content = content.substring(length);
 		}
 	} else {
 		text = content;
+		if (!file.neverEnds)
+			text += EOF;
 		if (file.removeReaded)
 			content = "";
 	}
@@ -808,6 +820,7 @@ Kernel.Filesystem.devfs.populate = function() {
 		return false;
 	}
 	tty.removeReaded = true;
+	tty.neverEnds = true;
 	tty.onRead = function () {
 		var tmp = Kernel.IO.input();
 		for (var i = 0; i < tmp.length; i++) {
@@ -841,7 +854,6 @@ Kernel.Filesystem.basefs.getRootStructure = function() {
 	console.log("Filesystem: trying to get " + Kernel.Filesystem.basefs.baseURL + "/* recursive");
 	Emulator.Request.get(Kernel.Filesystem.basefs.baseURL + "/lib/kernel/files.php", "getStructure&dir=" + encodeURIComponent(Kernel.Filesystem.basefs.baseURL), true, function(content) {
 		if (typeof content == "string") {
-			
 			Kernel.Filesystem.basefs.files = Kernel.Filesystem.basefs.interpretFile(JSON.parse(content), NO_PARENT, NO_MOUNTPOINT); // not mounted yet
 			Kernel.next();
 			return;

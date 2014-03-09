@@ -24,7 +24,7 @@ WshClass.prototype.tick = function() {
 		stdout.write("Welcome to WishOS 0.1 (WOSKernel 0.1)\n\n");
 		console.log("wsh: loading profile");
 		var prof = new File("/etc/profile.d/env.json");
-		var array = JSON.parse(prof.read());
+		var array = JSON.parse(prof.read().replace(EOF, ""));
 		prof.close();
 		for (var i = 0; i < array.length; i++) {
 			while(array[i][1].indexOf("\\033") != -1) 
@@ -57,6 +57,7 @@ WshClass.prototype.tick = function() {
 		break;
 	case 2:
 		var char = stdin.read(1);
+		char = char.replace(EOF, "");
 		if (!char.length)
 			break;
 		var code = char.charCodeAt(0);
@@ -208,9 +209,9 @@ WshClass.prototype.parseLine = function() {
 	prog.files['stdin'] = this.files['stdin'];
 	prog.files['stdout'] = this.files['stdout'];
 	prog.Environment = this.Environment;
-	console.log("wsh: program startet: " + file);
+	console.log("wsh: program start: " + file);
 	prog.main(params);
-
+	console.log("wsh: main shut down");
 }
 WshClass.prototype.tryFile = function(name) {
 	var file = new File(name);

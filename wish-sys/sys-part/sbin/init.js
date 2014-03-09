@@ -51,7 +51,9 @@ InitClass.prototype.tick = function() {
 		Emulator.output("\nloading /etc/inittab.json ...");
 		var file = new File("/etc/inittab.json");
 		this.files[file.path] = file;
-		this.inittab = JSON.parse(file.read());
+		file = file.read();
+		file = file.replace(EOF, "");
+		this.inittab = JSON.parse(file);
 		break;
 	case 1:
 		this.state++;

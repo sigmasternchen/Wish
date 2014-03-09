@@ -35,6 +35,7 @@ LoginClass.prototype.tick = function() {
 		break;
 	case 2:
 		var char = stdin.read(1);
+		char = char.replace(EOF, "");
 		if (!(char.length))
 			break;
 		var code = (new String(char)).charCodeAt(0);
@@ -59,6 +60,7 @@ LoginClass.prototype.tick = function() {
 		break;
 	case 4:
 		var char = stdin.read(1);
+		char = char.replace(EOF, "");
 		if (!char.length)
 			break;
 		var code = (new String(char)).charCodeAt(0);
@@ -79,7 +81,7 @@ LoginClass.prototype.tick = function() {
 		this.username = this.username.join("");
 		this.cpassword = Sha256.hash(this.password.join(""));
 		var file = new File("/etc/passwd.json");
-		this.users = JSON.parse(file.read());
+		this.users = JSON.parse(file.read().replace(EOF, ""));
 		file.close();
 		this.state++;
 		break;
