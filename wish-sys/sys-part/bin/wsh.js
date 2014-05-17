@@ -1,6 +1,17 @@
+const NO_INTERNAL_COMMAND = 1337;
+
 WshClass = function() {
 }
 WshClass.prototype = new Process();
+WshClass.prototype.iCommands = {
+	"exit": function(params, own) {
+			var rv = 0;
+			if (params.length > 1)
+				rv = parseInt(params[1]);
+			Kernel.ProcessManager.quit(own);
+			throw rv;
+		}
+}
 WshClass.prototype.state = 0;
 WshClass.prototype.Environment = function() {
 }
@@ -13,15 +24,22 @@ WshClass.prototype.main = function(args) {
 	Kernel.Scheduler.add(this);
 	this.uid = Kernel.ProcessManager.getUserByPID(this.pid);
 	this.username = Kernel.UserManager.getUserById(this.uid).username;
-	this.Environment.array['HOME'] = args[2];
-	this.Environment.array['PWD'] = args[2];
+	if (args[2]) {
+		this.Environment.array['HOME'] = args[2];
+		this.Environment.array['PWD'] = args[2];
+	} else if (!this.Environment.array['HOME']) {
+		this.Environment.array['HOME'] = "/";
+		this.Environment.array['PWD'] = "/";
+	} else {
+		this.Environment.array['PWD'] = this.Environment.array['HOME'];
+	}
 }
 WshClass.prototype.tick = function() {
 	var stdout = this.files['stdout'];
 	var stdin = this.files['stdin'];
 	switch(this.state) {
 	case 0:
-		stdout.write("Welcome to WishOS 0.1 (WOSKernel 0.1)\n\n");
+		stdout.write("Welcome to WishOS 0.1 (WOSKernel 0.9)\n\n");
 		console.log("wsh: loading profile");
 		var prof = new File("/etc/profile.d/env.json");
 		var array = JSON.parse(prof.read().replace(EOF, ""));
@@ -29,10 +47,13 @@ WshClass.prototype.tick = function() {
 		for (var i = 0; i < array.length; i++) {
 			while(array[i][1].indexOf("\\033") != -1) 
 				array[i][1] = array[i][1].replace("\\033", "\033");
+			console.log("wsh: set env." + array[i][0] + " = \"" + array[i][1] + "\"");
 			this.Environment.array[array[i][0]] = array[i][1];
 		}
+		console.log("wsh: checking for home directory: " + this.Environment.array['HOME']);
 		var file = new File(this.Environment.array['HOME']);
 		if (!file.exists() || !(file.getPermissions() & PERM_D)) {
+			console.log("wsh: home dir not found or not a directory");
 			stdout.write("\033[31mHome directory not found. Using / instead.\n\n");
 			this.Environment.array['HOME'] = "/";
 			this.Environment.array['PWD'] = "/";
@@ -132,7 +153,7 @@ WshClass.prototype.parseLine = function() {
 		for (var i = 0; i < lparts.length; i++)
 			parts.push(lparts[i]);
 	}
-	params = parts;		
+	params = parts;
 
 	if (params.length == 0) {
 		this.input = new Array();
@@ -171,7 +192,14 @@ WshClass.prototype.parseLine = function() {
 		this.input = new Array();
 		return;
 	}
-
+	
+	console.log("wsh: checking if internal command")
+	var rv = this.internalCommand(params)
+	
+	if (rv != NO_INTERNAL_COMMAND) {
+		return rv;
+	}
+	
 	var ok = false;
 	var name = params[0];
 	var file = "";
@@ -209,9 +237,19 @@ WshClass.prototype.parseLine = function() {
 	prog.files['stdin'] = this.files['stdin'];
 	prog.files['stdout'] = this.files['stdout'];
 	prog.Environment = this.Environment;
-	console.log("wsh: program start: " + file);
+	console.log("wsh: program main start: " + file);
 	prog.main(params);
-	console.log("wsh: main shut down");
+	console.log("wsh: program main return");
+}
+WshClass.prototype.internalCommand = function(params) {
+	if (this.iCommands[params[0]]) {
+		console.log("wsh: internal command");
+		console.log("wsh: executing internal representation");
+		return this.iCommands[params[0]](params, this);
+	} else { 
+		console.log("wsh: no internal command");
+		return NO_INTERNAL_COMMAND;
+	}
 }
 WshClass.prototype.tryFile = function(name) {
 	var file = new File(name);
