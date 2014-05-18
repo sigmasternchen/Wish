@@ -32,7 +32,7 @@ function clone(object){
 	if(!object)
 		return object;
 	if (typeof object != "object")
-        	return obj;
+        	return object;
 
 	var tmp = object.constructor();
 
