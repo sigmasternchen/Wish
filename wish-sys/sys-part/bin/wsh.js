@@ -61,6 +61,29 @@ WshClass.prototype.iCommands = {
 		env['PWD'] = folder;
 		
 		return 0;
+	},
+	"export": function(args, own) {
+		if (args.length == 1) {
+			for (var key in own.Environment.global) {
+				if (typeof own.Environment.global[key] == "object")
+					continue;
+				console.log(key);
+				var tmp = own.Environment.global[key];
+				while (tmp.indexOf("\033") > -1)
+					tmp = tmp.replace("\033", "\\033");
+				own.files['stdout'].write(key + "=" + tmp + "\n");
+			}
+			return 0;
+		}
+		if (args.length == 2) {
+			if (own.Environment.local[args[1]]) {
+				own.Environment.global[args[1]] = own.Environment.local[args[1]];
+			} else {
+				own.Environment.global[args[1]] = "";
+			}
+			return 0;
+		}
+		return 1;
 	}
 }
 WshClass.prototype.state = 0;
@@ -71,7 +94,9 @@ WshClass.prototype.main = function(args) {
 	Kernel.Scheduler.add(this);
 	this.uid = Kernel.ProcessManager.getUserByPID(this.pid);
 	this.username = Kernel.UserManager.getUserById(this.uid).username;
-	if (!this.Environment.global['HOME']) {
+	if (args > 1) {
+		this.Environment.global['HOME'] = args[1];
+	} else if (!this.Environment.global['HOME']) {
 		this.Environment.global['HOME'] = "/";
 	} else {
 	}
@@ -107,6 +132,10 @@ WshClass.prototype.tick = function() {
 			this.Environment.global['PWD'] = "/";
 		}
 		file.close();
+		
+		this.Environment.global['USER'] = this.uid;
+		this.Environment.global['SHELL'] = "/bin/wsh";
+		
 		this.Environment.local = clone(this.Environment.global);
 		this.Environment.local['$'] = this.pid;
 		this.Environment.local['#'] = 0;
@@ -216,6 +245,8 @@ WshClass.prototype.parseLine = function() {
 		if (params[i][0] == "$") {
 			if (this.Environment.local[params[i].substring(1)])
 				params[i] = this.Environment.local[params[i].substring(1)];
+			else
+				params[i] = "";
 		}
 	}
 	
