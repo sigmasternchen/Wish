@@ -102,7 +102,7 @@ Loader.boot = function() {
 	var partition = device.partitions[system.partition];
 	var loadstring = device.name + "/" + partition.name + "/" + system.kernel
 	Emulator.output("\n\nTrying to boot " + loadstring + "..");
-	Loader.state = 3;
+	Loader.state = 4;
 	Emulator.Request.include(loadstring, Loader.finished);
 }
 Loader.finished = function() {
