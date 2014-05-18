@@ -45,7 +45,7 @@ const EOF = String.fromCharCode(26);
 const OS_NAME = "Wish OS V 0.1"; // Wish-Isn't-a-SHell Operating System
 const KERNEL = "Wodka Kernel V 0.9"; // Wish Os Dedicated Kernel Alpha
 
-var OS = function() {own.Environment.global[args[1]]
+var OS = function() {
 }
 OS.system;
 OS.runlevel;
