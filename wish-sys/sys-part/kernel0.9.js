@@ -42,6 +42,9 @@ const MODE_CREATE = 6;
 // special chars
 const EOF = String.fromCharCode(26);
 
+const OS_NAME = "Wish OS V 0.1"; // Wish-Isn't-a-SHell Operating System
+const KERNEL = "Wodka Kernel V 0.9"; // Wish Os Dedicated Kernel Alpha
+
 var OS = function() {
 }
 OS.system;
@@ -80,6 +83,7 @@ Kernel.machine = function() {
 	case 0:
 		Emulator.Output.shiftKey = OS.staticShift;
 		Emulator.output("\033[2J\033[0;0H" + OS.logo);
+		Kernel.wall("\ņbooting kernel: " + KERNEL + "...")
 		Kernel.msgOut("reseting kernel timer", true);
 		Kernel.time = 0;
 		Kernel.msgOut("register main timer (100ms)", true); // pre

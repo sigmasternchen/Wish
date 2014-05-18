@@ -39,7 +39,7 @@ WshClass.prototype.tick = function() {
 	var stdin = this.files['stdin'];
 	switch(this.state) {
 	case 0:
-		stdout.write("Welcome to WishOS 0.1 (WOSKernel 0.9)\n\n");
+		stdout.write("Welcome to " + OS_NAME + " (" + KERNEL + ")\n\n");
 		console.log("wsh: loading profile");
 		var prof = new File("/etc/profile.d/env.json");
 		var array = JSON.parse(prof.read().replace(EOF, ""));
