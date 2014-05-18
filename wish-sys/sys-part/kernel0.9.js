@@ -45,7 +45,7 @@ const EOF = String.fromCharCode(26);
 const OS_NAME = "Wish OS V 0.1"; // Wish-Isn't-a-SHell Operating System
 const KERNEL = "Wodka Kernel V 0.9"; // Wish Os Dedicated Kernel Alpha
 
-var OS = function() {
+var OS = function() {own.Environment.global[args[1]]
 }
 OS.system;
 OS.runlevel;
@@ -98,6 +98,10 @@ Kernel.machine = function() {
 		Kernel.Filesystem.initCon();
 		Kernel.wall("\ninit process manager");
 		Kernel.ProcessManager.init();
+		Kernel.wall("\ninit user manager");
+		Kernel.UserManager.init();
+		Kernel.wall("\n   update user db");
+		Kernel.UserManager.update();
 		Kernel.wall("\ninit scheduler");
 		Kernel.Scheduler.init();		
 		Kernel.wall("\ninit kernel io");
@@ -211,8 +215,8 @@ Kernel.Scheduler.tick = function() {
 		Kernel.Scheduler.jobs[Kernel.Scheduler.activ].tick();
 	} catch (error) {
 		if ((typeof error) != "number") {
-			console.log("Kernel: a wild error appeared in pid" + pid + ".tick:");
-			console.dir(error);
+			console.log("Kernel: a wild error appeared in pid" + pid + ".tick");
+			console.log(error);
 		}
 	}
 	Kernel.time++;
@@ -286,7 +290,12 @@ Kernel.ProcessManager.exec = function(filepath, params, execute, lib) {
 			throw "not permitted";
 	}
 	
-	(1 ? eval : 0)(file.content); // genius hack to switch eval-scope to window
+	try {
+		(1 ? eval : 0)(file.content); // genius hack to switch eval-scope to window
+	} catch (e) {
+		console.log("Kernel: error in process exec");
+		console.log(e.stack);
+	}
 	if (lib)
 		return;
 	var program = eval("new " + Kernel.ProcessManager.getClassNameFromFileName(filepath));
@@ -687,7 +696,10 @@ Kernel.Filesystem.write = function(path, content, writeMode, notExistsMode) {
 }
 Kernel.Filesystem.open = function(path) {
 	var pid = Kernel.ProcessManager.getCurrentPID();
-	var files = Kernel.ProcessManager.innerProcessList[pid].files;
+	var iproc = Kernel.ProcessManager.innerProcessList[pid];
+	if (iproc === undefined)
+		return; // maybe we are the kernel
+	var files = iproc.files;
 	for (var i = 0; i < files.length; i++) {
 		if (files[i] == path)
 			return;
@@ -696,7 +708,10 @@ Kernel.Filesystem.open = function(path) {
 }
 Kernel.Filesystem.close = function(path) {
 	var pid = Kernel.ProcessManager.getCurrentPID();
-	var files = Kernel.ProcessManager.innerProcessList[pid].files;
+	var iproc = Kernel.ProcessManager.innerProcessList[pid];
+	if (iproc === undefined)
+		return; // maybe we are the kernel
+	var files = iproc.files;
 	for (var i = 0; i < files.length; i++) {
 		if (files[i] == path) {
 			files.splice(i, 1);
