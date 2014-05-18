@@ -17,6 +17,8 @@ Loader.logo = "\033[32m" +
 "                \\/     \\/   \033[31mLoader\033[0m\n";
 Loader.tickid;
 Loader.state;
+Loader.waiting;
+Loader.isCounting = true;
 Loader.device;
 Loader.config;
 Loader.main = function(device) {
@@ -42,6 +44,7 @@ Loader.key = function(keycode) {
 	if (Loader.selected < 0)
 		Loader.selected += Loader.config.systems.length;
 	Loader.outputSystems();
+	Loader.isCounting = false;
 }
 Loader.tick = function() {
 	switch(Loader.state) {
@@ -49,6 +52,7 @@ Loader.tick = function() {
 		console.log("Loader: load config");
 		Loader.config = JSON.parse(Emulator.Request.get(Loader.device.name + "/" + Loader.device.mbr + "/config.json", "", false, ret))
 		Loader.selected = Loader.config.default;
+		Loader.waiting = Loader.config.sleep * 10;
 		Loader.state++;
 		break;
 	case 1:
@@ -56,8 +60,17 @@ Loader.tick = function() {
 		Loader.state++;
 		break;
 	case 2:
+		if (!Loader.isCounting)
+			Loader.state++;
+		if (Loader.waiting > 0)
+			Loader.outputSystems();
+		else
+			Loader.boot();
+		Loader.waiting--;
 		break;
 	case 3:
+		break;
+	case 4:
 		Emulator.output(".");
 		break;
 	default:
@@ -65,7 +78,6 @@ Loader.tick = function() {
 	}
 }
 Loader.outputSystems = function() {
-	console.log("Loader: display menu");
 	var systems = Loader.config.systems;
 	var text = "\033[u\n\n\n\n";
 	for(var i = 0; i < systems.length; i++) {
@@ -77,6 +89,10 @@ Loader.outputSystems = function() {
 		text += "\033[0m\n";
 	}
 	text += "\n\nSelect OS to boot... [w, s]";
+	
+	if (Loader.isCounting)
+		text += "\n\nAuto-boot in " + parseInt((Loader.waiting / 10)) + " seconds..."
+	
 	Emulator.output(text);
 }
 Loader.boot = function() {
