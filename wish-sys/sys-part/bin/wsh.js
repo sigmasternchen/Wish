@@ -4,34 +4,76 @@ WshClass = function() {
 }
 WshClass.prototype = new Process();
 WshClass.prototype.iCommands = {
-	"exit": function(params, own) {
-			var rv = 0;
-			if (params.length > 1)
-				rv = parseInt(params[1]);
-			Kernel.ProcessManager.quit(own);
-			throw rv;
+	"exit": function(args, own) {
+		var rv = 0;
+		if (args.length > 1)
+			rv = parseInt(args[1]);
+		own.exitCode = rv;
+		Kernel.ProcessManager.quit(own);
+		throw rv;
+		return 0; // not necessary
+	},
+	"cd": function(args, own) {
+		var stdout = own.files['stdout'];
+		var env = own.Environment.global;
+		var folder = "";
+		if (args.length == 1) {
+			folder = env['HOME'];
+		} else {
+			folder = args[1];
 		}
+		if (folder.substring(0, 1) != "/")
+			folder = env['PWD'] + "/" + folder;
+		try {
+			folder = Kernel.Filesystem.shortenPath(folder);
+		} catch (e) {
+			return 0;
+		}
+		var file = new File(folder);
+		if (!file.exists()) {
+			stdout.write("wsh: cd: no such file or directory: " + folder + "\n");
+			return 2;
+		}
+		if (!(file.getPermissions() & PERM_D)) {
+			stdout.write("wsh: cd: not a directory: " + folder + "\n");
+			this.exit(1);
+		}
+		var uid = Kernel.ProcessManager.getUserByPID(Kernel.ProcessManager.getCurrentPID());
+		if (uid != 0) {
+			if (uid == file.getOwner()) {
+				if (!(file.getPermissions() & PERM_UX)) {
+					stdout.write("wsh: cd: permission denied: " + folder + "\n");
+					return 3;
+				}
+			} else if (Kernel.UserManager.isUserIdInGroupId(uid, file.getGroup())) {
+				if (!(file.getPermissions() & PERM_GX)) {
+					stdout.write("wsh: cd: permission denied: " + folder + "\n");
+					return 3;
+				}
+			} else {
+				if (!(file.getPermissions() & PERM_OX)) {
+					stdout.write("wsh: cd: permission denied: " + folder + "\n");
+					return 3;
+				}
+			}
+		}
+		
+		env['PWD'] = folder;
+		
+		return 0;
+	}
 }
 WshClass.prototype.state = 0;
-WshClass.prototype.Environment = function() {
-}
-WshClass.prototype.Environment.array = new Array();
 WshClass.prototype.input = new Array();
-WshClass.prototype.lastExitCode = 0;
 WshClass.prototype.childList = new Array();
 WshClass.prototype.main = function(args) {
-	console.log("wsh: adding to scheduler job list");
+	console.log("wsh " + this.pid + ": adding to scheduler job list");
 	Kernel.Scheduler.add(this);
 	this.uid = Kernel.ProcessManager.getUserByPID(this.pid);
 	this.username = Kernel.UserManager.getUserById(this.uid).username;
-	if (args[2]) {
-		this.Environment.array['HOME'] = args[2];
-		this.Environment.array['PWD'] = args[2];
-	} else if (!this.Environment.array['HOME']) {
-		this.Environment.array['HOME'] = "/";
-		this.Environment.array['PWD'] = "/";
+	if (!this.Environment.global['HOME']) {
+		this.Environment.global['HOME'] = "/";
 	} else {
-		this.Environment.array['PWD'] = this.Environment.array['HOME'];
 	}
 }
 WshClass.prototype.tick = function() {
@@ -40,31 +82,40 @@ WshClass.prototype.tick = function() {
 	switch(this.state) {
 	case 0:
 		stdout.write("Welcome to " + OS_NAME + " (" + KERNEL + ")\n\n");
-		console.log("wsh: loading profile");
+		console.log("wsh " + this.pid + ": loading profile");
 		var prof = new File("/etc/profile.d/env.json");
 		var array = JSON.parse(prof.read().replace(EOF, ""));
 		prof.close();
 		for (var i = 0; i < array.length; i++) {
 			while(array[i][1].indexOf("\\033") != -1) 
 				array[i][1] = array[i][1].replace("\\033", "\033");
-			console.log("wsh: set env." + array[i][0] + " = \"" + array[i][1] + "\"");
-			this.Environment.array[array[i][0]] = array[i][1];
+			if (this.Environment.global[array[i][0]])
+				continue;
+			console.log("wsh " + this.pid + ": set env." + array[i][0] + " = \"" + array[i][1] + "\"");
+			this.Environment.global[array[i][0]] = array[i][1];
 		}
-		console.log("wsh: checking for home directory: " + this.Environment.array['HOME']);
-		var file = new File(this.Environment.array['HOME']);
+		
+		if (!this.Environment.global['PWD'])
+			this.Environment.global['PWD'] = this.Environment.global['HOME'];
+		
+		console.log("wsh " + this.pid + ": checking for working directory: " + this.Environment.global['PWD']);
+		var file = new File(this.Environment.global['PWD']);
 		if (!file.exists() || !(file.getPermissions() & PERM_D)) {
-			console.log("wsh: home dir not found or not a directory");
+			console.log("wsh " + this.pid + ": home dir not found or not a directory");
 			stdout.write("\033[31mHome directory not found. Using / instead.\n\n");
-			this.Environment.array['HOME'] = "/";
-			this.Environment.array['PWD'] = "/";
+			this.Environment.global['HOME'] = "/";
+			this.Environment.global['PWD'] = "/";
 		}
 		file.close();
+		this.Environment.local = clone(this.Environment.global);
+		this.Environment.local['$'] = this.pid;
+		this.Environment.local['#'] = 0;
 		this.state++;
 		break;
 	case 1:
-		var prompt = this.Environment.array['PS1'];
+		var prompt = this.Environment.local['PS1'];
 		while (prompt.indexOf("\\w") != -1)
-			prompt = prompt.replace("\\w", this.Environment.array['PWD'].replace(this.Environment.array['HOME'], "~/"));
+			prompt = prompt.replace("\\w", this.Environment.global['PWD'].replace(this.Environment.local['HOME'], "~/"));
 		while (prompt.indexOf("\\u") != -1)
 			prompt = prompt.replace("\\u", this.username);
 		while (prompt.indexOf("\\u") != -1)
@@ -72,7 +123,7 @@ WshClass.prototype.tick = function() {
 		while (prompt.indexOf("\\$") != -1)
 			prompt = prompt.replace("\\$", (this.uid == 0) ? "#" : "$");
 		while (prompt.indexOf("\\#") != -1)
-			prompt = prompt.replace("\\#", (this.lastExitCode == 0) ? "" : this.lastExitCode);
+			prompt = prompt.replace("\\#", (this.Environment.local['#'] == 0) ? "" : this.Environment.local['#']);
 		stdout.write(prompt);
 		this.state++;
 		break;
@@ -106,7 +157,7 @@ WshClass.prototype.tick = function() {
 			if (params[i].length == 0)
 				params.splice(i, 1);
 		stdout.write("wsh: command not found: " + params[0] + "\n");
-		this.lastExitCode = 127;
+		this.Environment.local['#'] = 127;
 		this.input = new Array();
 		break;
 	default:
@@ -163,8 +214,8 @@ WshClass.prototype.parseLine = function() {
 
 	for (var i = 0; i < params.length; i++) {
 		if (params[i][0] == "$") {
-			if (this.Environment.array[params[i].substring(1)])
-				params[i] = this.Environment.array[params[i].substring(1)];
+			if (this.Environment.local[params[i].substring(1)])
+				params[i] = this.Environment.local[params[i].substring(1)];
 		}
 	}
 	
@@ -179,7 +230,7 @@ WshClass.prototype.parseLine = function() {
 			var name = array[0];
 			array.splice(0, 1);
 			var value = array.join("=");
-			this.Environment.array[name] = value;
+			this.Environment.local[name] = value;
 			params.splice(0, 1);
 		} while (false);
 	}
@@ -193,11 +244,13 @@ WshClass.prototype.parseLine = function() {
 		return;
 	}
 	
-	console.log("wsh: checking if internal command")
+	console.log("wsh " + this.pid + ": checking if internal command")
 	var rv = this.internalCommand(params)
 	
 	if (rv != NO_INTERNAL_COMMAND) {
-		return rv;
+		this.input = new Array();
+		this.Environment.local['#'] = rv;
+		return;
 	}
 	
 	var ok = false;
@@ -206,12 +259,12 @@ WshClass.prototype.parseLine = function() {
 	if (name.substring(0, 1) == "/") 
 		file = name + ".js";
 	else if (name.indexOf("/") != -1)
-		file = this.Environment.array['PWD'] + name + ".js";
+		file = this.Environment.global['PWD'] + name + ".js";
 	else {
-		var paths = this.Environment.array['PATH'].split(":");
+		var paths = this.Environment.local['PATH'].split(":");
 		for (var i = 0; i < paths.length; i++) {
 			file = paths[i] + "/" + name + ".js";
-			console.log("wsh: trying: " + file);
+			console.log("wsh " + this.pid + ": trying: " + file);
 			if (this.tryFile(file)) {
 				ok = true;
 				break;
@@ -220,7 +273,7 @@ WshClass.prototype.parseLine = function() {
 		
 	}
 	if (this.tryFile(file)) {
-		console.log("wsh: files exists... yay....");
+		console.log("wsh " + this.pid + ": files exists... yay....");
 		ok = true;
 	}
 	if (!ok) {
@@ -230,24 +283,23 @@ WshClass.prototype.parseLine = function() {
 	this.input = new Array();
 	
 	this.state = 3;
-	var pathArray = new Array();
-
+	
 	var pid = Kernel.ProcessManager.exec(file, [], false);
 	var prog = Kernel.ProcessManager.getProcess(pid);
 	prog.files['stdin'] = this.files['stdin'];
 	prog.files['stdout'] = this.files['stdout'];
-	prog.Environment = this.Environment;
-	console.log("wsh: program main start: " + file);
+	prog.Environment.global = clone(this.Environment.global);
+	console.log("wsh " + this.pid + ": program main start: " + file);
 	prog.main(params);
-	console.log("wsh: program main return");
+	console.log("wsh " + this.pid + ": program main return");
 }
 WshClass.prototype.internalCommand = function(params) {
 	if (this.iCommands[params[0]]) {
-		console.log("wsh: internal command");
-		console.log("wsh: executing internal representation");
+		console.log("wsh " + this.pid + ": internal command");
+		console.log("wsh " + this.pid + ": executing internal representation");
 		return this.iCommands[params[0]](params, this);
 	} else { 
-		console.log("wsh: no internal command");
+		console.log("wsh " + this.pid + ": no internal command");
 		return NO_INTERNAL_COMMAND;
 	}
 }
@@ -262,13 +314,13 @@ WshClass.prototype.signalHandler = function(signal) {
 		var oldChilds = this.childList.diff(newChildList);
 		var newChilds = newChildList.diff(this.childList);
 		if (newChilds.length)
-			console.log("wsh: we got " + newChilds.length + " new kid(s)... : )")
+			console.log("wsh " + this.pid + ": we got " + newChilds.length + " new kid(s)... : )")
 		if (oldChilds.length) {
-			console.log("wsh: we lost " + oldChilds.length + " kid(s)");
+			console.log("wsh " + this.pid + ": we lost " + oldChilds.length + " kid(s)");
 			this.state = 1; 
 		}
 		for (var i = 0; i < oldChilds.length; i++) {
-			this.lastExitCode = oldChilds[i].exitCode;
+			this.Environment.local['#'] = oldChilds[i].exitCode;
 			Kernel.ProcessManager.remove(oldChilds[i]);
 		}
 		this.childList = newChildList;

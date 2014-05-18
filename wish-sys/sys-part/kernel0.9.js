@@ -304,14 +304,14 @@ Kernel.ProcessManager.exec = function(filepath, params, execute, lib) {
 	return program.pid;
 }
 Kernel.ProcessManager.quit = function(process) {
-	var parentId = process.parentId;	
+	var parentId = process.parentId;
 	var pid = process.pid;
 	console.log("Kernel: quiting pid: " + pid);
 	Kernel.Scheduler.remove(process);
 	if (pid != parentId)
 		this.processList[parentId].signalHandler(SIGCHLD);
 }
-Kernel.ProcessManager.remove = function(process) {		
+Kernel.ProcessManager.remove = function(process) {
 	this.processList.splice(process.pid, 1);
 	var childs = this.getAllChilds(process.pid);
 	for (var i = 0; i < childs.length; i++)
@@ -373,10 +373,15 @@ Process.prototype.pid;
 Process.prototype.userId;
 Process.prototype.parentId;
 Process.prototype.files;
+Process.prototype.Environment;
 Process.prototype.exitCode;
 Process.prototype.init = function(parentId) {
 	// DO NOT OVERWRITE
-	this.pid = Kernel.ProcessManager.getPid();
+	this.pid = Kernel.ProcessManager.getPid(); 
+	this.Environment = function() {
+	}
+	this.Environment.global = {};
+	this.Environment.local = {};
 	this.parentId = parentId;
 	this.files = new Array();
 }
