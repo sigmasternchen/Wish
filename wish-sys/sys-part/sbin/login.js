@@ -105,7 +105,7 @@ LoginClass.prototype.tick = function() {
 		console.log("login: okay, user='" + this.user.username + "' shell='" + this.user.shell + "' dir='" + this.user.home + "'");
 		Emulator.Output.shiftKey = 1;
 		OS.staticShift = 1;
-		this.execProgram(this.user);
+		this.execProgram();
 		this.state++;
 		break;
 	case 8:
@@ -114,9 +114,10 @@ LoginClass.prototype.tick = function() {
 		break;
 	}
 }
-LoginClass.prototype.execProgram = function(user) {
-	var name = user.shell;
-	params = [name, user.username, user.home];
+LoginClass.prototype.execProgram = function() {
+	var name = this.user.shell;
+	var params = [name, this.user.home];
+	console.log("login: loading shell");
 	var pid = Kernel.ProcessManager.exec(name, [], false);
 	var prog = Kernel.ProcessManager.getProcess(pid);
 	prog.files['stdin'] = this.files['stdin'];
