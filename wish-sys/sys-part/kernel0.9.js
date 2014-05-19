@@ -952,7 +952,7 @@ Kernel.Filesystem.vfs.mount = function(mountpoint, files) {
 		throw ("no such file or directory");
 	var childs = Kernel.Filesystem.vfs.getFilesByParent(file);
 	if (childs.length)
-		throw ("mountpoint not emty");
+		throw ("mountpoint not empty");
 	var id = Kernel.Filesystem.vfs.mounts++;
 	mountpoint.id = id;
 	mountpoint.mountTime = Kernel.time;
