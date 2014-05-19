@@ -1069,8 +1069,8 @@ Kernel.UserManager.init = function () {
 	Kernel.UserManager.groupsFile = new File("/etc/groups.json");
 }
 Kernel.UserManager.update = function () {
-	Kernel.UserManager.users  = JSON.parse(Kernel.UserManager.passwdFile.read());
-	Kernel.UserManager.groups = JSON.parse(Kernel.UserManager.groupsFile.read());
+	Kernel.UserManager.users  = JSON.parse(Kernel.UserManager.passwdFile.read().replace(EOF, ""));
+	Kernel.UserManager.groups = JSON.parse(Kernel.UserManager.groupsFile.read().replace(EOF, ""));
 }
 Kernel.UserManager.getUserById = function(id) {
 	for (var i = 0; i < Kernel.UserManager.users.length; i++) {
