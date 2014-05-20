@@ -1,3 +1,13 @@
+Kernel.Filesystem.init = extendFunction(Kernel.Filesystem.init, function() {
+		Kernel.msgOut("  init basefs...");
+		Kernel.Filesystem.basefs.init();
+		Kernel.msgSuccess(true);
+		
+		Kernel.msgOut("  loading sd" + (String.fromCharCode("a".charCodeAt(0) + OS.system.hdd)) + (1 + OS.system.partition) + " to RAM (this may take some time)...");
+		Kernel.Filesystem.basefs.getRootStructure(); 
+	}
+);
+
 Kernel.Filesystem.basefs = function() {
 }
 Kernel.Filesystem.basefs.baseURL;

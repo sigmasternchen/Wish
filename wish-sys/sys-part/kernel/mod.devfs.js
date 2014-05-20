@@ -1,3 +1,10 @@
+Kernel.Filesystem.init = extendFunction(Kernel.Filesystem.init, function() {
+		Kernel.msgOut("  init devfs...");
+		Kernel.Filesystem.devfs.init();
+		Kernel.msgSuccess(true);
+	}
+);
+
 Kernel.Filesystem.devfs = function() {
 }
 Kernel.Filesystem.devfs.devices;

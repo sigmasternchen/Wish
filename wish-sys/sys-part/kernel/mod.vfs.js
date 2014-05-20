@@ -83,17 +83,6 @@ Kernel.Filesystem.init = function() {
 	Kernel.msgOut("  init vfs...");
 	Kernel.Filesystem.vfs.init();
 	Kernel.msgSuccess(true);
-
-	Kernel.msgOut("  init devfs...");
-	Kernel.Filesystem.devfs.init();
-	Kernel.msgSuccess(true);
-
-	Kernel.msgOut("  init basefs...");
-	Kernel.Filesystem.basefs.init();
-	Kernel.msgSuccess(true);
-
-	Kernel.msgOut("  loading sd" + (String.fromCharCode("a".charCodeAt(0) + OS.system.hdd)) + (1 + OS.system.partition) + " to RAM (this may take some time)...");
-	Kernel.Filesystem.basefs.getRootStructure(); 
 }
 
 Kernel.Filesystem.initCon = function() {
