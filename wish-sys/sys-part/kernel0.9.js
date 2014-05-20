@@ -89,11 +89,7 @@ Kernel.machine = function() {
 		Kernel.msgOut("register main timer (100ms)", true); // pre
 		Kernel.wall("\nloading bootstraping modules...");
 		Kernel.msgOut("   mod.vfs");
-		var device = Emulator.Devices.getHarddisks();
-		device = device[OS.system.hdd];
-		var partition = device.partitions[OS.system.partition];
-		var loadstring = device.name + "/" + partition.name;
-		Emulator.Request.include(loadstring + "/kernel/mod.vfs.js", Kernel.next);
+		Kernel.bootstrapModule("vfs");
 		Kernel.next();
 		break;
 	case 1:
@@ -101,11 +97,7 @@ Kernel.machine = function() {
 	case 2:
 		Kernel.msgSuccess(true);
 		Kernel.msgOut("   mod.devfs");
-		var device = Emulator.Devices.getHarddisks();
-		device = device[OS.system.hdd];
-		var partition = device.partitions[OS.system.partition];
-		var loadstring = device.name + "/" + partition.name;
-		Emulator.Request.include(loadstring + "/kernel/mod.devfs.js", Kernel.next);
+		Kernel.bootstrapModule("devfs");
 		Kernel.next();
 		break;
 	case 3:
@@ -113,11 +105,7 @@ Kernel.machine = function() {
 	case 4:
 		Kernel.msgSuccess(true);
 		Kernel.msgOut("   mod.basefs");
-		var device = Emulator.Devices.getHarddisks();
-		device = device[OS.system.hdd];
-		var partition = device.partitions[OS.system.partition];
-		var loadstring = device.name + "/" + partition.name;
-		Emulator.Request.include(loadstring + "/kernel/mod.basefs.js", Kernel.next);
+		Kernel.bootstrapModule("basefs");
 		Kernel.next();
 		break;
 	case 5:
@@ -136,19 +124,19 @@ Kernel.machine = function() {
 		Kernel.wall("loading some modules...");
 		
 		Kernel.msgOut("   mod.io");
-		(1 ? eval : 0)((new File("/kernel/mod.io.js")).read().replace(EOF, ""));
+		Kernel.loadModule("io");
 		Kernel.msgSuccess(true);
 		
 		Kernel.msgOut("   mod.processes");
-		(1 ? eval : 0)((new File("/kernel/mod.processes.js")).read().replace(EOF, ""));
+		Kernel.loadModule("processes");
 		Kernel.msgSuccess(true);
 		
 		Kernel.msgOut("   mod.users");
-		(1 ? eval : 0)((new File("/kernel/mod.users.js")).read().replace(EOF, ""));
+		Kernel.loadModule("users");
 		Kernel.msgSuccess(true);
 		
 		Kernel.msgOut("   mod.scheduler");
-		(1 ? eval : 0)((new File("/kernel/mod.scheduler.js")).read().replace(EOF, ""));
+		Kernel.loadModule("scheduler");
 		Kernel.msgSuccess(true);
 		
 		Kernel.msgOut("init process manager");
@@ -246,4 +234,22 @@ Kernel.shutdown = function() {
 	Emulator.interrupts = new Array();
 	Kernel.wall("System halt\n\n");
 	
+}
+
+Kernel.loadedModules = new Array();
+
+Kernel.bootstrapModule = function(name) {	
+	var device = Emulator.Devices.getHarddisks();
+	device = device[OS.system.hdd];
+	var partition = device.partitions[OS.system.partition];
+	var loadstring = device.name + "/" + partition.name;
+	Emulator.Request.include(loadstring + "/kernel/mod." + name + ".js", Kernel.next);
+	
+	Kernel.loadedModules.push([name, (new Date()).getTime()]);
+}
+
+Kernel.loadModule = function(name) {
+	(1 ? eval : 0)((new File("/kernel/mod." + name + ".js")).read().replace(EOF, ""));
+	
+	Kernel.loadedModules.push([name, (new Date()).getTime()]);
 }
