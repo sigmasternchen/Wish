@@ -592,7 +592,7 @@ Emulator.Request.post = function(file, getParameters, postParameters, background
 	http.open("POST", file + "?" + getParameter, background);
 	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	http.setRequestHeader("Content-length", postParameters.length);
-	http.setRequestHeader("Connection", "close")
+	http.setRequestHeader("Connection", "close");
 	if (background) {
 		http.onreadystatechange = function() {
 			if (http.readyState == 4) {
