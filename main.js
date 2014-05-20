@@ -42,6 +42,16 @@ function clone(object){
 	return tmp;
 }
 
+function extendFunction(function1, function2) {
+	// I guess, we don't need more than 5 parameters.
+	return new Function("a, b, c, d, e", "\
+		var tmp1 = (" + function1.toString() + ")(a, b, c, d, e);\
+		var tmp2 = (" + function2.toString() + ")(a, b, c, d, e);\
+		return tmp1 | tmp2" // Problem if one return-value is an Object-
+	);
+} 
+
+
 var main = function () {
 	Emulator.init(document.getElementById("output"), document.forms['form'].elements['input'], 80, 24);
 }
