@@ -84,6 +84,11 @@ WshClass.prototype.iCommands = {
 			return 0;
 		}
 		return 1;
+	},
+	"echo": function(args, own) {
+		args.splice(0,1); // we do not want to echo the "echo"
+		own.files["stdout"].write(args.join(" ")+"\n");
+		return 0;
 	}
 }
 WshClass.prototype.state = 0;
