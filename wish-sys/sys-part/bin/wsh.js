@@ -91,7 +91,7 @@ WshClass.prototype.iCommands = {
 		return 0;
 	},
 	"pwd": function(args, own) {
-		own.files['stdout'].write(this.Environment.global['PWD'] + "\n");
+		own.files['stdout'].write(own.Environment.global['PWD'] + "\n");
 		return 0;
 	}
 }
@@ -103,7 +103,7 @@ WshClass.prototype.main = function(args) {
 	Kernel.Scheduler.add(this);
 	this.uid = Kernel.ProcessManager.getUserByPID(this.pid);
 	this.username = Kernel.UserManager.getUserById(this.uid).username;
-	if (args > 1) {
+	if (args.length > 1) {
 		this.Environment.global['HOME'] = args[1];
 	} else if (!this.Environment.global['HOME']) {
 		this.Environment.global['HOME'] = "/";
