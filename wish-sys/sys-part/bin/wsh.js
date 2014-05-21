@@ -89,6 +89,10 @@ WshClass.prototype.iCommands = {
 		args.splice(0,1); // we do not want to echo the "echo"
 		own.files["stdout"].write(args.join(" ")+"\n");
 		return 0;
+	},
+	"pwd": function(args, own) {
+		own.files['stdout'].write(this.Environment.global['PWD'] + "\n");
+		return 0;
 	}
 }
 WshClass.prototype.state = 0;
