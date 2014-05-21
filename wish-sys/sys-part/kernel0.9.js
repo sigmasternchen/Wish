@@ -1,4 +1,4 @@
-const SIGHUP = 1;
+const SIGHUP  = 1;
 const SIGKILL = 9;
 const SIGALRM = 14;
 const SIGTERM = 15;
@@ -21,20 +21,20 @@ const PERM_UR = 1 <<  8;
 const PERM_D  = 1 <<  9;
 const PERM_L  = 1 << 10;
 
-const NO_PARENT = -1;
+const NO_PARENT     = -1;
 const NO_MOUNTPOINT = -1;
-const NO_SOURCE = -1;
+const NO_SOURCE     = -1;
 
 const FS_BASEFS = 1;
 const FS_DEVFS  = 2;
 const FS_PROCFS = 3;
 
 // read modes
-const MODE_FIFO  = 1;
-const MODE_LIFO  = 2;
+const MODE_FIFO   = 1;
+const MODE_LIFO   = 2;
 // write modes
-const MODE_OVRWD = 3;
-const MODE_APPND = 4;
+const MODE_OVRWD  = 3;
+const MODE_APPND  = 4;
 // what should happen, if a file does not exist
 const MODE_THROW  = 5;
 const MODE_CREATE = 6;
@@ -43,6 +43,10 @@ const MODE_CREATE = 6;
 const MODTYPE_BOOT = 1;
 const MODTYPE_NORM = 2;
 
+// kernel state-machine states
+const KERNEL_INIT        = -1
+const KERNEL_BOOTSTRAP   =  0;
+const KERNEL_NOBOOTSTRAP = 20;
 
 // special chars
 const EOF = String.fromCharCode(26);
@@ -78,18 +82,18 @@ Kernel.machineTimerId;
 Kernel.globalLog;
 Kernel.init = function() {
 	console.log("Kernel: init");
-	Kernel.state = 0;
+	Kernel.state = -1;
 	console.log("Kernel: main timer (100ms)");
 	Kernel.machineTimerId = Emulator.registerTimer(100, Kernel.machine);
 	Kernel.globalLog = "";
 }
 Kernel.machine = function() {
 	switch(Kernel.state) {
-	case 0:
+	case -1:
 		Emulator.Output.shiftKey = OS.staticShift;
 		Emulator.output("\033[2J\033[0;0H" + OS.logo);
 		Kernel.wall("\nbooting kernel: " + KERNEL + "...")
-		Kernel.msgOut("reseting kernel timer", true);
+		Kernel.msgOut("resetting kernel timer", true);
 		Kernel.time = 0;
 		Kernel.msgOut("register main timer (100ms)", true); // pre
 		Kernel.wall("\nloading bootstraping modules...");
@@ -97,34 +101,35 @@ Kernel.machine = function() {
 		Kernel.bootstrapModule("vfs");
 		Kernel.next();
 		break;
-	case 1:
+	case 0:
 		break;
-	case 2:
+	case 1:
 		Kernel.msgSuccess(true);
 		Kernel.msgOut("   mod.devfs");
 		Kernel.bootstrapModule("devfs");
 		Kernel.next();
 		break;
-	case 3:
+	case 2:
 		break;
-	case 4:
+	case 3:
 		Kernel.msgSuccess(true);
 		Kernel.msgOut("   mod.basefs");
 		Kernel.bootstrapModule("basefs");
 		Kernel.next();
 		break;
-	case 5:
+	case 4:
 		break;
-	case 6:
+		
+	case 5:
 		Kernel.msgSuccess(true);
 		Kernel.wall("\n   ... now we can proceed the normal way.");
 		Kernel.wall("\ninit filesystem");
 		Kernel.Filesystem.init();
-		Kernel.next();
+		Kernel.state = KERNEL_NOBOOTSTRAP;
 		break;
-	case 7:
+	case (KERNEL_NOBOOTSTRAP + 0):
 		break;
-	case 8:
+	case (KERNEL_NOBOOTSTRAP + 1):
 		Kernel.Filesystem.initCon();
 		Kernel.wall("loading some modules...");
 		
@@ -181,7 +186,7 @@ Kernel.machine = function() {
 		Kernel.msgSuccess(true);
 		Kernel.next();
 		break;
-	case 9:
+	case (KERNEL_NOBOOTSTRAP + 2):
 		break;
 	default:
 		break;
