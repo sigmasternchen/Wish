@@ -9,8 +9,7 @@
 			exit();
 		}
 		echo json_encode($files);
-	}
-	if (isset($_GET['getStructure'])) {
+	} else if (isset($_GET['getStructure'])) {
 		if (strpos($_GET['dir'], "../") !== false)
 			die("illegal file path");
 		$dir = $_GET['dir'];
@@ -21,7 +20,13 @@
 		$base = "../../../../" . $dir;	
 
 		$structure = getStructure($base);
+		//var_dump($structure);
 		echo json_encode($structure);
+		$error = json_last_error();
+		if ($error)
+			echo $error;
+	} else {
+		echo "Unknown Command";
 	}
 
 	function getStructure($base) {
