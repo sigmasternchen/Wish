@@ -88,7 +88,7 @@ Kernel.machine = function() {
 	case 0:
 		Emulator.Output.shiftKey = OS.staticShift;
 		Emulator.output("\033[2J\033[0;0H" + OS.logo);
-		Kernel.wall("\ņbooting kernel: " + KERNEL + "...")
+		Kernel.wall("\nbooting kernel: " + KERNEL + "...")
 		Kernel.msgOut("reseting kernel timer", true);
 		Kernel.time = 0;
 		Kernel.msgOut("register main timer (100ms)", true); // pre
@@ -190,8 +190,17 @@ Kernel.machine = function() {
 Kernel.next = function() {
 	Kernel.state++;
 }
-Kernel.wall = function(text) {
+Kernel.wall = function(text, noLogging) {
 	Emulator.output(text);
+	if (!noLogging) {
+		while (text.indexOf("\n") > -1)
+			text = text.replace("\n", "");
+		while (text.indexOf("  ") > -1)
+			text = text.replace("  ", " ");
+		while (text.indexOf("\033") > -1)
+			text = text.replace("\033", "");
+		console.log("Kernel wall: " + text);
+	}
 }
 Kernel.msgOut = function(text, success, color) {
 	while (text.length < Emulator.Output.xsize - 12)
@@ -214,7 +223,7 @@ Kernel.msgSuccess = function(success) {
 	else
 		text = "";
 	Kernel.globalLog += text;
-	Kernel.wall(text);
+	Kernel.wall(text, true);
 }
 
 Kernel.shutdown = function() {
