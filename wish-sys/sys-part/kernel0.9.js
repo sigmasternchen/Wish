@@ -39,6 +39,11 @@ const MODE_APPND = 4;
 const MODE_THROW  = 5;
 const MODE_CREATE = 6;
 
+// module types
+const MODTYPE_BOOT = 1;
+const MODTYPE_NORM = 2;
+
+
 // special chars
 const EOF = String.fromCharCode(26);
 
@@ -238,18 +243,21 @@ Kernel.shutdown = function() {
 
 Kernel.loadedModules = new Array();
 
-Kernel.bootstrapModule = function(name) {	
+Kernel.bootstrapModule = function(name) {
+	console.log("Kernel: loading mod." + name + "; type=bootstrap");	
 	var device = Emulator.Devices.getHarddisks();
 	device = device[OS.system.hdd];
 	var partition = device.partitions[OS.system.partition];
 	var loadstring = device.name + "/" + partition.name;
 	Emulator.Request.include(loadstring + "/kernel/mod." + name + ".js", Kernel.next);
 	
-	Kernel.loadedModules.push([name, (new Date()).getTime()]);
+	Kernel.loadedModules.push([name, (new Date()).getTime(), MODTYPE_BOOT]);
 }
 
 Kernel.loadModule = function(name) {
+	console.log("Kernel: loading mod." + name + "; type=normal");
+	
 	(1 ? eval : 0)((new File("/kernel/mod." + name + ".js")).read().replace(EOF, ""));
 	
-	Kernel.loadedModules.push([name, (new Date()).getTime()]);
+	Kernel.loadedModules.push([name, (new Date()).getTime(), MODTYPE_NORM]);
 }
