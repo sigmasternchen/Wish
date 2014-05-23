@@ -92,7 +92,8 @@ Emulator.handleKeyDown = function(e) {
 }
 Emulator.refocus = function () {
 	window.setTimeout(function() {
-		Emulator.input.focus();}, 1);
+		Emulator.input.focus();
+	}, 1);
 	console.log("Emulator: refocus input");
 }
 Emulator.tick = function (time) {
