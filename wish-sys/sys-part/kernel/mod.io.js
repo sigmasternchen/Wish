@@ -4,7 +4,7 @@ Kernel.IO.inputBuffer;
 Kernel.IO.init = function() {
 	Kernel.IO.inputBuffer = new Array();
 }
-Kernel.IO.key = function(code) {
+Kernel.IO.key = function(code, modKeys) {
 	Kernel.IO.inputBuffer.push(code);
 }
 Kernel.IO.powersw = function() {

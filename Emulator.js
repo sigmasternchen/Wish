@@ -76,19 +76,24 @@ Emulator.genericKeyHandler = function(keycode) {
 		Emulator.interrupts['key'](keycode);
 }
 Emulator.handleKeyPress = function(e) {
-	Emulator.genericKeyHandler(Emulator.getKeyCode(e));
+	Emulator.genericKeyHandler(Emulator.getKeyCode(e), {
+		"ctrl": e.ctrlKey, 
+		"alt": e.altKey, 
+		"altgr": e.altGraphKey
+	};
 }
 Emulator.handleKeyDown = function(e) {
 	var keycode = Emulator.getKeyCode(e);
 	if (keycode == 8 || keycode == 46) {
-		Emulator.handleKeyPress(e);		
+		Emulator.handleKeyPress(e);
 		return false;
 	}
 	return true;
 }
 Emulator.refocus = function () {
-	window.setTimeout(function() {Emulator.input.focus();}, 1);
-	console.log("Emulator: refocus input")
+	window.setTimeout(function() {
+		Emulator.input.focus();}, 1);
+	console.log("Emulator: refocus input");
 }
 Emulator.tick = function (time) {
 	if (Emulator.interrupts[time])
