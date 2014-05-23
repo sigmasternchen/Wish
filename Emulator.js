@@ -475,25 +475,23 @@ Emulator.Output.generateMatrix = function() {
 Emulator.Output.getCursor = function() {
 	return Emulator.Output.screen.getElementsByTagName("tr")[Emulator.Output.ypos].getElementsByTagName("td")[Emulator.Output.xpos];
 }
-Emulator.Output.cursorOff = function() { // fix by Jonas
-	if(document.getElementById("cursor") != undefined)
-		document.getElementById("cursor").parentNode.removeChild(document.getElementById("cursor"));
+Emulator.Output.cursorOff = function() {
+	if(document.getElementById("cursor") != undefined) {
+		document.getElementById("cursor").style.borderColor = Emulator.Output.backgroundColor;
+		document.getElementById("cursor").id = undefined;
+	}
 }
-Emulator.Output.cursorOn = function() { // fix by Jonas
+Emulator.Output.cursorOn = function() {
 	if (Emulator.Output.displayCursor) {
-		var cursorElement=document.createElement("div");
-		var att=document.createAttribute("id");
-		att.value = "cursor";
-		cursorElement.setAttributeNode(att);
-		cursorElement.style.background = "#000";
-		cursorElement.style.border = "1px solid #fff";
-		Emulator.Output.getCursor().appendChild(cursorElement);
+		Emulator.Output.getCursor().style.borderColor = Emulator.Output.color;
+		Emulator.Output.getCursor().id = "cursor";
 	}
 }
 Emulator.Output.insert = function(char) {
 	var cell = Emulator.Output.getCursor();
 	cell.style.color = Emulator.Output.color;
 	cell.style.backgroundColor = Emulator.Output.backgroundColor;
+	cell.style.borderColor = Emulator.Output.backgroundColor;
 	if (Emulator.Output.bold)
 		cell.style.fontWeight = "bold";
 	else

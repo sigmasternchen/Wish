@@ -5,17 +5,20 @@
 			table {
 				border: 1px solid #fff;
 				background-color: #000;
-				border-collapse: collapse;
+				border-collapse: seperate;
+				border-spacing: 0px 0px;
 			}
 			tr {
 			}
 			td {
-				width: 10px;
+				min-width: 8px;
+				max-width: 8px;
+				overflow: visible;
 				text-align: center;
-				height: 20px;
+				height: 18px;
 				color: #fff;
 				font-family: "Courier New", Courier, Monospace;
-				border-collapse: collapse;
+				border: 1px solid #000;
 			}
 			#input {
 				z-index: -10; 
@@ -24,10 +27,6 @@
 			}
 			#output {
 				z-index: 1000;
-			}
-			#cursor{
-				width:8px;
-				height:18px;
 			}
 		</style>
 		<script src="Emulator.js"></script>
