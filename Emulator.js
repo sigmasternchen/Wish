@@ -84,7 +84,7 @@ Emulator.handleKeyPress = function(e) {
 }
 Emulator.handleKeyDown = function(e) {
 	var keycode = Emulator.getKeyCode(e);
-	if (keycode == 8 || keycode == 46) {
+	if (KeyCodes.isSpecialKey(keycode)) {
 		Emulator.handleKeyPress(e);
 		return false;
 	}
@@ -177,7 +177,7 @@ Emulator.ANSISequences.output = function(text) {
 				Emulator.Output.cursorOff();
 				Emulator.Output.moveCursor(0, - parseInt(specialText), false);
 				Emulator.Output.cursorOn();
-				normalText = "";				
+				normalText = "";
 				specialText = "";
 				specialText2 = "";
 				state = 0;

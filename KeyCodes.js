@@ -3,6 +3,17 @@ var KeyCodes = function() {
 KeyCodes.normalKey = function(code) {
 	return String.fromCharCode(code);
 }
+KeyCodes.isSpecialKey = function(code) {
+	return 	(code == 8)  || 
+		(code == 10) || 
+		(code == 13) ||
+		(code == 27) ||
+		(code == 37) ||
+		(code == 38) ||
+		(code == 39) ||
+		(code == 40) ||
+		(code == 46);
+}
 KeyCodes.isBackspace = function(code) {
 	return (code == 8);
 }
