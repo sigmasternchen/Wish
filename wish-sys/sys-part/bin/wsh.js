@@ -97,6 +97,9 @@ WshClass.prototype.iCommands = {
 }
 WshClass.prototype.state = 0;
 WshClass.prototype.input = new Array();
+WshClass.prototype.inputIndex = 0;
+WshClass.prototype.history = new Array();
+WshClass.prototype.historyIndex = 0;
 WshClass.prototype.childList = new Array();
 WshClass.prototype.main = function(args) {
 	console.log("wsh " + this.pid + ": adding to scheduler job list");
@@ -171,20 +174,89 @@ WshClass.prototype.tick = function() {
 		if (!char.length)
 			break;
 		var code = char.charCodeAt(0);
-		if (KeyCodes.isBackspace(code)) {
-			if (!this.input.length)
+		if (KeyCodes.isUp(code)) {
+			if (this.historyIndex == 0)
 				break;
-			this.input.pop();
-			stdout.write("\033[1D \033[1D");
+			for (var i = this.inputIndex; i < this.input.length; i++) {
+				stdout.write("\033[1C");
+			}
+			for (var i = 0; i < this.input.length; i++) {
+				stdout.write("\033[1D \033[1D");
+			}
+			this.input = clone(this.history[--this.historyIndex]);
+			this.inputIndex = this.input.length;
+			stdout.write(this.input.join(""));
+			break;
+		}
+		if (KeyCodes.isDown(code)) {
+			if (this.historyIndex == this.history.length)
+				break;
+			for (var i = this.inputIndex; i < this.input.length; i++) {
+				stdout.write("\033[1C");
+			}
+			for (var i = 0; i < this.input.length; i++) {
+				stdout.write("\033[1D \033[1D");
+			}
+			if (this.historyIndex + 1 == this.history.length) {
+				this.input = new Array();
+				this.inputIndex = this.input.length;
+				this.historyIndex = this.history.length;
+			} else {
+				this.input = clone(this.history[++this.historyIndex]);
+				this.inputIndex = this.input.length;
+			}
+			
+			stdout.write(this.input.join(""));
+			break;
+		}
+		if (KeyCodes.isLeft(code)) {
+			if (this.inputIndex == 0)
+				break;
+			this.inputIndex--;
+			stdout.write("\033[1D");
+			break;
+		}
+		if (KeyCodes.isRight(code)) {
+			if (this.inputIndex == this.input.length)
+				break;
+			this.inputIndex++;
+			stdout.write("\033[1C");
+			break;
+		}
+		if (KeyCodes.isBackspace(code)) {
+			if (this.inputIndex == 0)
+				break;
+			for (var i = this.inputIndex; i < this.input.length; i++) {
+				stdout.write("\033[1C");
+			}
+			for (var i = 0; i < this.input.length; i++) {
+				stdout.write("\033[1D \033[1D");
+			}
+			this.input.splice(--this.inputIndex, 1);
+			stdout.write(this.input.join(""));
+			for (var i = this.input.length; i > this.inputIndex; i--) {
+				stdout.write("\033[1D");
+			}
 			break;
 		}
 		if (KeyCodes.isEnter(code)) {
-			stdout.write("\n");	
+			this.history.push(clone(this.input));
+			this.historyIndex = this.history.length;
+			this.inputIndex = 0;
+			stdout.write("\n");
 			this.parseLine();
 			break;
 		}
-		this.input.push(char);
-		stdout.write(char);
+		this.historyIndex = this.history.length;
+		
+		for (var i = 0; i < this.inputIndex; i++) {
+			stdout.write("\033[1D \033[1D");
+		}
+		this.input.splice(this.inputIndex++, 0, char);
+		stdout.write(this.input.join(""));
+		for (var i = this.input.length; i > this.inputIndex; i--) {
+			stdout.write("\033[1D");
+		}
 		break;
 	case 3:
 		break;
