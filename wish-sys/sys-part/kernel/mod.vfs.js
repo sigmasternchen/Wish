@@ -156,7 +156,7 @@ Kernel.Filesystem.read = function(path, length, index, readMode) {
 		}
 	}
 
-	if (!file.onRead())
+	if (!file.onRead(length))
 		return "";
 	var content = file.content;
 
@@ -173,7 +173,7 @@ Kernel.Filesystem.read = function(path, length, index, readMode) {
 
 	var text = "";
 	if (length !== undefined) {
-		if (index !== undefined) {
+		if (index !== undefined && !file.neverEnds) {
 			text = content.substring(index, length + index);
 			if ((text.length < length) && (!file.neverEnds))
 				text += EOF;

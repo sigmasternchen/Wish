@@ -81,6 +81,30 @@ Kernel.Filesystem.devfs.populate = function() {
 		return true;
 	}
 	Kernel.Filesystem.devfs.files.push(tty);
+	
+	var urandom = new InnerFile();
+	urandom.name = "urandom";
+	urandom.id = Kernel.Filesystem.vfs.index++;
+	urandom.ownerID = 0;
+	urandom.groupID = 0;
+	urandom.parent = NO_PARENT;
+	urandom.permissions = PERM_OR | PERM_GR | PERM_UR;
+	urandom.created = timestampOfCreation;
+	urandom.changed = timestampOfCreation;
+	urandom.onChange = function (content) {
+		// writing to /dev/urandom does nothing
+		return false;
+	}
+	urandom.removeReaded = true;
+	urandom.neverEnds = true;
+	urandom.onRead = function (number) {
+		if (!number)
+			number = 4294967296; // 2^32; cheat because we can't generate inf random numbers at once.
+		for (var i = 0; i < number; i++)
+			this.content += String.fromCharCode(parseInt(Math.random() * 65536));
+		return true;
+	}
+	Kernel.Filesystem.devfs.files.push(urandom);
 }
 Kernel.Filesystem.devfs.mount = function () {
 	var point = new MountPoint();
