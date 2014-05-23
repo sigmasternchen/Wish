@@ -125,7 +125,7 @@ Kernel.Filesystem.devfs.populate = function() {
 		if (!number)
 			number = 4294967296; // 2^32; cheat because we can't generate inf random numbers at once.
 		for (var i = 0; i < number; i++)
-			this.content += String.fromCharCode(0));
+			this.content += String.fromCharCode(0);
 		return true;
 	}
 	Kernel.Filesystem.devfs.files.push(zero);
