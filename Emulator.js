@@ -550,7 +550,7 @@ Emulator.Output.lineShift = function() {
 Emulator.Output.normalOutput = function(text) {
 	Emulator.Output.cursorOff();
 	for(var i = 0; i < text.length; i++) {
-		if (text[i] == "\n") {
+		if (KeyCodes.isEnter(text.charCodeAt(i))) {
 			Emulator.Output.moveCursor(0, 1, true);
 			Emulator.Output.xpos = 0;
 		} else {
