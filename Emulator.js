@@ -80,7 +80,7 @@ Emulator.handleKeyPress = function(e) {
 		"ctrl": e.ctrlKey, 
 		"alt": e.altKey, 
 		"altgr": e.altGraphKey
-	};
+	});
 }
 Emulator.handleKeyDown = function(e) {
 	var keycode = Emulator.getKeyCode(e);
