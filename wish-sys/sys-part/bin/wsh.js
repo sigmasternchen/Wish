@@ -159,8 +159,8 @@ WshClass.prototype.tick = function() {
 			prompt = prompt.replace("\\w", this.Environment.global['PWD'].replace(this.Environment.local['HOME'], "~/"));
 		while (prompt.indexOf("\\u") != -1)
 			prompt = prompt.replace("\\u", this.username);
-		while (prompt.indexOf("\\u") != -1)
-			prompt = prompt.replace("\\u", OS.hostname);
+		while (prompt.indexOf("\\h") != -1)
+			prompt = prompt.replace("\\h", OS.hostname);
 		while (prompt.indexOf("\\$") != -1)
 			prompt = prompt.replace("\\$", (this.uid == 0) ? "#" : "$");
 		while (prompt.indexOf("\\#") != -1)
