@@ -3,7 +3,7 @@ var LsClass = function() {
 LsClass.prototype = new Process();
 LsClass.prototype.main = function(args) {
 	var stdout = this.files['stdout'];
-	var env = this.Environment.array;
+	var env = this.Environment.global;
 	var folder = "";
 	if (args.length == 1) {
 		folder = env['PWD'];
