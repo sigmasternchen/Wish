@@ -124,7 +124,7 @@ Emulator.ANSISequences.output = function(text) {
 		switch(state) {
 		case 0:
 			specialText = "";
-			speacielText2 = "";
+			specialText2 = "";
 			if (text[i] != Emulator.ANSISequences.ESC)
 				normalText += text[i];
 			else
